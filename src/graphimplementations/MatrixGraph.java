@@ -28,7 +28,6 @@ import exceptions.EdgeNotInGraphException;
 public class MatrixGraph extends AbstractGraph {
 	private int[][] adjacencyMatrix;
 	private List<Vertex> vertices;
-	private int noOfOneWays;
 		
 	public MatrixGraph(int[][] matrix, List<Vertex> v) {
 		Preconditions.checkArgument(matrix.length == v.size(), 
@@ -40,15 +39,6 @@ public class MatrixGraph extends AbstractGraph {
 		
 		this.adjacencyMatrix = matrix;
 		this.vertices = v;
-		for (int i = 0; i < getNoOfVertices(); i++) {
-			for (int j = 0; j < i; j++) {
-				if (getMatrix()[i][j] != getMatrix()[j][i]) {
-					int oneWaysAtij = Math.abs(getMatrix()[i][j] 
-							- getMatrix()[j][i]);
-					this.noOfOneWays+=oneWaysAtij;
-				}
-			}
-		}
 	}
 
 	public MatrixGraph(int[][] matrix) {		
@@ -62,17 +52,7 @@ public class MatrixGraph extends AbstractGraph {
 		for (int i = 0; i < matrix.length; i++) {
 			Vertex v = new Vertex();
 			vertices.add(v);
-		}
-		for (int i = 0; i < getNoOfVertices(); i++) {
-			for (int j = 0; j < i; j++) {
-				if (getMatrix()[i][j] != getMatrix()[j][i]) {
-					int oneWaysAtij = Math.abs(getMatrix()[i][j] 
-							- getMatrix()[j][i]);
-					this.noOfOneWays+=oneWaysAtij;
-				}
-			}
-		}
-		
+		}		
 	}
 
 /**
@@ -109,63 +89,71 @@ public class MatrixGraph extends AbstractGraph {
 	}
 
 	@Override
-	public Multiset<Edge> getEdges() {
-		Multiset<Edge> edges = HashMultiset.create();
-		if (!isDirected()) {
-			for (int i = 0; i < getNoOfVertices(); i++) {
-				for (int j = 0; j <= i; j++) {
-					for (int k = 0; k < adjacencyMatrix[i][j]; k++) {
-						Vertex start = vertices.get(i);
-						Vertex end = vertices.get(j);
-						Edge edge = Edge.between(start).and(end);
-						edges.add(edge);					
-					}
-				}
-			}			
-		} else {
-			for (int i = 0; i < getNoOfVertices(); i++) {
-				for (int j = 0; j <= getNoOfVertices(); j++) {
-					for (int k = 0; k < adjacencyMatrix[i][j]; k++) {
-						Vertex start = vertices.get(i);
-						Vertex end = vertices.get(j);
-						Edge edge = Edge.from(start).to(end);
-						edges.add(edge);					
-					}
+	public boolean isDirected() {
+		for (int i = 0; i < getNoOfVertices(); i++) {
+			for (int j = 0; j < i; j++) {
+				if (getMatrix()[i][j] != getMatrix()[j][i]) {
+					return true;
 				}
 			}
 		}
+		return false;
+	}	
+
+	@Override
+	public Multiset<Edge> getEdges() {
+		Multiset<Edge> edges = HashMultiset.create();
+		for (int i = 0; i < getNoOfVertices(); i++) {
+			for (int j = 0; j <= i; j++) {
+				for (int k = 0; k < Math.min(adjacencyMatrix[i][j], adjacencyMatrix[j][i]); k++) {
+					Vertex start = vertices.get(i);
+					Vertex end = vertices.get(j);
+					Edge edge = Edge.between(start).and(end);
+					edges.add(edge);					
+				}
+			}
+		}			
 		return edges;
 	}
 
 	@Override
-	public boolean isDirected() {
-//		for (int i = 0; i < getNoOfVertices(); i++) {
-//			for (int j = 0; j < i; j++) {
-//				if (getMatrix()[i][j] != getMatrix()[j][i]) {
-//					return true;
-//				}
-//			}
-//		}
-//		return false;
-		return (noOfOneWays > 0);
-	}	
+	public Multiset<Edge> getDirectedEdges() {
+		Multiset<Edge> edges = HashMultiset.create();
+		for (int i = 0; i < getNoOfVertices(); i++) {
+			for (int j = 0; j <= i; j++) {
+				for (int k = 0; k < Math.abs(adjacencyMatrix[i][j] - adjacencyMatrix[j][i]); k++) {
+					Vertex start;
+					Vertex end;
+					if (adjacencyMatrix[i][j] > adjacencyMatrix[j][i]) {
+						start = vertices.get(i);
+						end = vertices.get(j);						
+					} else {
+					// since we are iterating on k = 0; 
+					// k < Math.abs(matrix[i][j] - matrix[j][i])
+					// we are excluding the case in which matrix[i][j] = matrix[j][i]
+						start = vertices.get(j);
+						end = vertices.get(i);												
+					}
+					Edge edge = Edge.between(start).and(end);
+					edges.add(edge);					
+				}
+			}
+		}			
+		return edges;
+	}
 	
 	public int[][] getMatrix() {
 		return adjacencyMatrix;
 	}
 	
-	//TODO this and the next two methods using the matrix
+	//TODO this and the next two methods, possibly using the matrix
 	@Override
 	public Multiset<Edge> getEdgesAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+		int indexOfVertex = getIndexOf(vertex);
 		Multiset<Edge> edgesAt = HashMultiset.create();
-		for (Edge e : getEdges()) {
-			if ((e.getStart().equals(vertex) || e.getEnd().equals(vertex)) 
-					&& !e.isDirected()) {
-				edgesAt.add(e);
-			}
-		}
+
 		return edgesAt;
 	}
 		
@@ -278,24 +266,34 @@ public class MatrixGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
 				&& vertices.contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(!edge.isDirected(), "Use addDirectedEdge.");
 		
 		int startLabel = getIndexOf(edge.getStart());
 		int endLabel = getIndexOf(edge.getEnd());
 		
 		adjacencyMatrix[startLabel][endLabel]++;
-		if (!edge.getStart().equals(edge.getEnd()) && !edge.isDirected()) {
+		if (!edge.getStart().equals(edge.getEnd())) {
 			adjacencyMatrix[endLabel][startLabel]++;			
 		}
-		if (edge.isDirected()) {
-			noOfOneWays++;
-		}
 	}
-
+	
+	@Override
+	public void addDirectedEdge(Edge edge) {
+		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
+				&& vertices.contains(edge.getEnd()), 
+				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(edge.isDirected(), "Use addEdge.");
+		
+		int startLabel = getIndexOf(edge.getStart());
+		int endLabel = getIndexOf(edge.getEnd());
+		
+		adjacencyMatrix[startLabel][endLabel]++;		
+	}
+	
 	@Override
 	public void addEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
-				&& vertices.contains(end), 
-				"Edge's endpoints not in graph.");
+				&& vertices.contains(end), "Edge's endpoints not in graph.");
 
 		int startLabel = getIndexOf(start);
 		int endLabel = getIndexOf(end);
@@ -307,7 +305,7 @@ public class MatrixGraph extends AbstractGraph {
 	}
 
 	@Override
-	public void addArc(Vertex start, Vertex end) {
+	public void addDirectedEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
 				&& vertices.contains(end), 
 				"Edge's endpoints not in graph.");
@@ -316,7 +314,6 @@ public class MatrixGraph extends AbstractGraph {
 		int endLabel = getIndexOf(end);
 		
 		adjacencyMatrix[startLabel][endLabel]++;
-		noOfOneWays++;
 	}
 	
 	@Override
@@ -326,19 +323,32 @@ public class MatrixGraph extends AbstractGraph {
 				"Edge's endpoints not in graph.");
 		Preconditions.checkArgument(getEdges().contains(edge), 
 				"Edge not in graph.");		
+		Preconditions.checkArgument(!edge.isDirected(), "Use addDirectedEdge.");
 		
 		int startLabel = getIndexOf(edge.getStart());
 		int endLabel = getIndexOf(edge.getEnd());
 		
 		adjacencyMatrix[startLabel][endLabel]--;
-		if (!edge.getStart().equals(edge.getEnd()) && !edge.isDirected()) {
+		if (!edge.getStart().equals(edge.getEnd())) {
 			adjacencyMatrix[endLabel][startLabel]--;
-		}
-		if (edge.isDirected()) {
-			noOfOneWays--;
 		}
 	}
 
+	@Override
+	public void removeDirectedEdge(Edge edge) {
+		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
+				&& vertices.contains(edge.getEnd()), 
+				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(getEdges().contains(edge), 
+				"Edge not in graph.");		
+		Preconditions.checkArgument(edge.isDirected(), "Use removeEdge.");
+		
+		int startLabel = getIndexOf(edge.getStart());
+		int endLabel = getIndexOf(edge.getEnd());
+		
+		adjacencyMatrix[startLabel][endLabel]--;
+	}
+	
 	@Override
 	public void removeEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
@@ -358,7 +368,7 @@ public class MatrixGraph extends AbstractGraph {
 	}
 
 	@Override
-	public void removeArc(Vertex start, Vertex end) {
+	public void removeDirectedEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
 				&& vertices.contains(end), 
 				"Edge's endpoints not in graph.");
@@ -370,7 +380,6 @@ public class MatrixGraph extends AbstractGraph {
 		int endLabel = getIndexOf(end);
 		
 		adjacencyMatrix[startLabel][endLabel]--;
-		noOfOneWays--;
 	}
 		
 	// TODO directed/undirected
