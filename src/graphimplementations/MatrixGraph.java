@@ -399,23 +399,30 @@ public class MatrixGraph extends AbstractGraph {
 		adjacencyMatrix[startLabel][endLabel]--;
 	}
 		
-	// TODO from here it's for undirected graphs only
 	public boolean isEulerian() {		
-		for (int i = 0; i < getNoOfVertices(); i++){
-			// each vertex covered exactly once
-			int rowSum = 0;
+		for (int v = 0; v < getNoOfVertices(); v++){
+			int undirected = 0;
+			int out = 0;
+			int in = 0;
 			for (int j = 0; j < getNoOfVertices(); j++){
-				if (j != i) {
-					rowSum = rowSum + getMatrix()[i][j];
+				if (j != v) {
+					undirected += Math.min(adjacencyMatrix[v][j], adjacencyMatrix[j][v]);					
+					if (adjacencyMatrix[v][j] < adjacencyMatrix[j][v]) {
+						in += (adjacencyMatrix[j][v] - adjacencyMatrix[v][j]);
+					} else if (adjacencyMatrix[v][j] > adjacencyMatrix[j][v]) {
+						out += (adjacencyMatrix[v][j] - adjacencyMatrix[j][v]);
+					}
 				}
 			}
-			if (rowSum%2 == 1) {
+			if (undirected%2 == 1 || (in - out) != 0) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	// TODO from here it's for undirected graphs only
+	
 	public boolean isPerfectMatching(int[][] subset) {
 		Preconditions.checkArgument(subset.length == adjacencyMatrix.length, 
 				"Not enough or too many vertices in subset");
