@@ -159,13 +159,20 @@ public class EdgesGraph extends AbstractGraph {
 				"Vertex not in graph.");
 
 		Multiset<Edge> newEdges = HashMultiset.create();
+		Multiset<Edge> newDirectedEdges = HashMultiset.create();
 		
 		for (Edge e : getEdges()){
 			if (!e.getStart().equals(vertex) && !e.getEnd().equals(vertex)) {
 				newEdges.add(e);
 			} 
 		}
+		for (Edge e : getDirectedEdges()){
+			if (!e.getStart().equals(vertex) && !e.getEnd().equals(vertex)) {
+				newDirectedEdges.add(e);
+			} 
+		}
 		edges = newEdges;
+		directedEdges = newDirectedEdges;
 
 		Set<Vertex> newVertices = new HashSet<Vertex>(getVertices());
 		newVertices.remove(vertex);
