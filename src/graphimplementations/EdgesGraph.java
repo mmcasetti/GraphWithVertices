@@ -227,11 +227,18 @@ public class EdgesGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
 				&& vertices.contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(directedEdges.contains(edge), 
+		Edge undirected = Edge.between(edge.getStart()).and(edge.getEnd());
+		Preconditions.checkArgument(directedEdges.contains(edge) || edges.contains(undirected), 
 				"Edge not in graph.");
 		Preconditions.checkArgument(edge.isDirected(), "Use removeEdge.");
 		
-		directedEdges.remove(edge);
+		if (directedEdges.contains(edge)) {
+			directedEdges.remove(edge);
+		} else {
+			Edge opposite = Edge.from(edge.getEnd()).to(edge.getStart());
+			edges.remove(undirected);
+			directedEdges.add(opposite);
+		}
 	}
 
 	@Override
@@ -252,10 +259,17 @@ public class EdgesGraph extends AbstractGraph {
 				&& vertices.contains(end), 
 				"Edge's endpoints not in graph.");
 		Edge edge = Edge.from(start).to(end);
-		Preconditions.checkArgument(directedEdges.contains(edge), 
-				"Edge not in graph.");
+		Edge undirected = Edge.between(start).and(end);
+		Preconditions.checkArgument(directedEdges.contains(edge) ||
+				edges.contains(undirected), "Edge not in graph.");
 		
-		directedEdges.remove(edge);
+		if (directedEdges.contains(edge)){
+			directedEdges.remove(edge);			
+		} else {
+			Edge opposite = Edge.from(end).to(start);
+			edges.remove(undirected);
+			directedEdges.add(opposite);
+		}
 	}
 
 	public boolean isEulerian() {
