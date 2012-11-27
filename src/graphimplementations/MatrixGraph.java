@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
-import exceptions.EdgeNotInGraphException;
 /**
  * 
  * @author mmcasetti
