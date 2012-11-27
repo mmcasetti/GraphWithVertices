@@ -24,16 +24,13 @@ import abstractclasses.AbstractGraph;
  *
  */
 
-// TODO if we have a directed edge a,b and a directed edge b,a this
-// should become an undirected edge a,b
-
 public class EdgesGraph extends AbstractGraph {
 	
 	private Set<Vertex> vertices;
 	private Multiset<Edge> edges;
-	private int noOfOneWays;
+	private Multiset<Edge> directedEdges;
 	
-	public EdgesGraph(Set<Vertex> v, Multiset<Edge> e) {
+	public EdgesGraph(Set<Vertex> v, Multiset<Edge> e, Multiset<Edge> d) {
 		for (Edge edge : e) {
 			Preconditions.checkArgument(v.contains(edge.getStart()) 
 					&& v.contains(edge.getEnd()),
@@ -42,23 +39,13 @@ public class EdgesGraph extends AbstractGraph {
 		
 		this.vertices = v;
 		this.edges = e;
-		HashMultiset<Edge> oneWays = HashMultiset.create(Iterables.filter(edges, 
-				areOneWays()));
-		noOfOneWays = oneWays.size();
+		this.directedEdges = d;
 	}
 	
-	private static Predicate<Edge> areOneWays() {
-		return new Predicate<Edge>() {
-			@Override
-			public boolean apply(Edge edge) {
-				return (!edge.isDirected() && !edge.isLoop());
-			}
-		};
-	}
-
 	public EdgesGraph() {
-		vertices = Sets.newHashSet();
-		edges = HashMultiset.create();
+		this.vertices = Sets.newHashSet();
+		this.edges = HashMultiset.create();
+		this.directedEdges = HashMultiset.create();
 	}
 	
 	@Override
@@ -72,8 +59,13 @@ public class EdgesGraph extends AbstractGraph {
 	}
 	
 	@Override
+	public Multiset<Edge> getDirectedEdges() {
+		return directedEdges;
+	}
+	
+	@Override
 	public boolean isDirected() {
-		return (noOfOneWays > 0);
+		return (directedEdges.size() > 0);
 	}
 	
 	public int getNoOfVertices() {
@@ -83,7 +75,8 @@ public class EdgesGraph extends AbstractGraph {
 	public EdgesGraph copy() {
 		Set<Vertex> v = Sets.newHashSet(this.getVertices());
 		Multiset<Edge> e = HashMultiset.create(this.getEdges());
-		return new EdgesGraph(v, e);
+		Multiset<Edge> d = HashMultiset.create(this.getDirectedEdges());
+		return new EdgesGraph(v, e, d);
 	}
 
 	@Override
@@ -91,10 +84,12 @@ public class EdgesGraph extends AbstractGraph {
 		return HashMultiset.create(getDirectedDegree(isUndirectedAt(vertex)));
 	}
 	
+	@Override
 	public Multiset<Edge> getEdgesFrom(Vertex vertex) {		
 		return HashMultiset.create(getDirectedDegree(isOutEdgeFrom(vertex)));
 	}
 	
+	@Override
 	public Multiset<Edge> getEdgesTo(Vertex vertex) {		
 		return HashMultiset.create(getDirectedDegree(isInEdgeTo(vertex)));
 	}
@@ -108,9 +103,8 @@ public class EdgesGraph extends AbstractGraph {
 		return new Predicate<Edge>() {
 			@Override
 			public boolean apply(Edge edge) {
-				return (!edge.isDirected() && 
-						(edge.getStart().equals(vertex) 
-								|| edge.getEnd().equals(vertex)));
+				return (!edge.isDirected() && (edge.getStart().equals(vertex) || 
+						edge.getEnd().equals(vertex)));
 			}
 		};
 	}
@@ -167,7 +161,7 @@ public class EdgesGraph extends AbstractGraph {
 		Multiset<Edge> newEdges = HashMultiset.create();
 		
 		for (Edge e : getEdges()){
-			if (!e.getStart().equals(vertex) && !e.getEnd().equals(vertex)){
+			if (!e.getStart().equals(vertex) && !e.getEnd().equals(vertex)) {
 				newEdges.add(e);
 			} 
 		}
@@ -183,34 +177,37 @@ public class EdgesGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
 				&& vertices.contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(!edge.isDirected(), "Use addDirectedEdge.");
 
-		edges.add(edge);
-		if (edge.isDirected() && !edge.isLoop()) {
-			noOfOneWays++;
-		}
+		edges.add(edge);			
+	}
+
+	@Override
+	public void addDirectedEdge(Edge edge){
+		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
+				&& vertices.contains(edge.getEnd()), 
+				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(edge.isDirected(), "Use addEdge");
+
+		directedEdges.add(edge);			
 	}
 
 	@Override
 	public void addEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
-				&& vertices.contains(end), 
-				"Edge's endpoints not in graph.");
-
+				&& vertices.contains(end), "Edge's endpoints not in graph.");
+		
 		Edge e = Edge.between(start).and(end);
 		edges.add(e);
 	}
 
 	@Override
-	public void addArc(Vertex start, Vertex end) {
+	public void addDirectedEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
-				&& vertices.contains(end), 
-				"Edge's endpoints not in graph.");
+				&& vertices.contains(end), "Edge's endpoints not in graph.");
 
 		Edge edge = Edge.from(start).to(end);
-		edges.add(edge);
-		if (!edge.isLoop()) {
-			noOfOneWays++;			
-		}
+		directedEdges.add(edge);
 	}
 
 	@Override
@@ -220,11 +217,21 @@ public class EdgesGraph extends AbstractGraph {
 				"Edge's endpoints not in graph.");
 		Preconditions.checkArgument(edges.contains(edge), 
 				"Edge not in graph.");
+		Preconditions.checkArgument(!edge.isDirected(), "Use removeDirectedEdge.");
 		
 		edges.remove(edge);
-		if (edge.isDirected() && !edge.isLoop()) {
-			noOfOneWays--;
-		}
+	}
+
+	@Override
+	public void removeDirectedEdge(Edge edge) {
+		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
+				&& vertices.contains(edge.getEnd()), 
+				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(directedEdges.contains(edge), 
+				"Edge not in graph.");
+		Preconditions.checkArgument(edge.isDirected(), "Use removeEdge.");
+		
+		directedEdges.remove(edge);
 	}
 
 	@Override
@@ -236,43 +243,54 @@ public class EdgesGraph extends AbstractGraph {
 		Preconditions.checkArgument(edges.contains(edge), 
 				"Edge not in graph.");
 		
-		removeEdge(edge);
+		edges.remove(edge);
 	}
 
 	@Override
-	public void removeArc(Vertex start, Vertex end) {
+	public void removeDirectedEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
 				&& vertices.contains(end), 
 				"Edge's endpoints not in graph.");
 		Edge edge = Edge.from(start).to(end);
-		Preconditions.checkArgument(edges.contains(edge), 
+		Preconditions.checkArgument(directedEdges.contains(edge), 
 				"Edge not in graph.");
 		
-		removeEdge(edge);
-		if (!edge.isLoop()) {
-			noOfOneWays--;			
-		}
+		directedEdges.remove(edge);
 	}
 
-	// TODO directed/undirected
 	public boolean isEulerian() {
-		for (Vertex i : getVertices()){
-			boolean evenDegree = true;
-			for (Edge edge : getEdgesAt(i)){
-				if (!edge.isLoop()){
-					evenDegree = !evenDegree;
-				} 
+		if (!this.isDirected()) {
+			for (Vertex v : getVertices()) {
+				if (getDegreeAt(v)%2 != 0) {
+					return false;
+				}
+// 				Alternatively...
+//				boolean evenDegree = true;
+//				for (Edge edge : getEdgesAt(v)) {
+//					if (!edge.isLoop()){
+//						evenDegree = !evenDegree;
+//					} 
+//				}
+//				if (evenDegree == false){
+//					return false;
+//				}
 			}
-			if (evenDegree == false){
-				return false;
+			return true;			
+		} else {
+			for (Vertex v : getVertices()) {
+				if ((getOutdegreeAt(v) != getIndegreeAt(v)) 
+						|| getDegreeAt(v)%2 != 0) {
+					return false;
+				}
 			}
+			return true;
 		}
-		return true;
 	}
 
 	public boolean isPerfectMatching(Multiset<Edge> subset) {
 		for (Edge e : subset) {
-			Preconditions.checkArgument(edges.contains(e), "Edge of subset not in graph.");
+			Preconditions.checkArgument(edges.contains(e) 
+					|| directedEdges.contains(e), "Edge of subset not in graph.");
 		}
 		// if there is an odd no. of vertices, no perfect matching
 		if (getNoOfVertices()%2 == 1){
@@ -304,6 +322,8 @@ public class EdgesGraph extends AbstractGraph {
 		}						
 		return true;
 	}
+
+	// TODO from here it is still with only undirected graphs	
 	
 	private List<Vertex> findAndRemoveCycle(EdgesGraph edgesGraph, Vertex startNode) {
 		List<Vertex> cycle = Lists.newArrayList(
