@@ -196,7 +196,14 @@ public class EdgesGraph extends AbstractGraph {
 				"Edge's endpoints not in graph.");
 		Preconditions.checkArgument(edge.isDirected(), "Use addEdge");
 
-		directedEdges.add(edge);			
+		Edge opposite = Edge.from(edge.getEnd()).to(edge.getStart());		
+		if (!directedEdges.contains(opposite)) {
+			directedEdges.add(edge);						
+		} else {
+			Edge undirected = Edge.between(edge.getStart()).and(edge.getEnd());		
+			directedEdges.remove(opposite);
+			edges.add(undirected);
+		}
 	}
 
 	@Override
@@ -204,8 +211,8 @@ public class EdgesGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(start) 
 				&& vertices.contains(end), "Edge's endpoints not in graph.");
 		
-		Edge e = Edge.between(start).and(end);
-		edges.add(e);
+		Edge edge = Edge.between(start).and(end);
+		edges.add(edge);
 	}
 
 	@Override
@@ -214,7 +221,14 @@ public class EdgesGraph extends AbstractGraph {
 				&& vertices.contains(end), "Edge's endpoints not in graph.");
 
 		Edge edge = Edge.from(start).to(end);
-		directedEdges.add(edge);
+		Edge opposite = Edge.from(end).to(start);
+		if (!directedEdges.contains(opposite)) {
+			directedEdges.add(edge);
+		} else {
+			Edge undirected = Edge.between(start).and(end);
+			directedEdges.remove(opposite);
+			edges.add(undirected);
+		}
 	}
 
 	@Override
