@@ -146,24 +146,36 @@ public class MatrixGraph extends AbstractGraph {
 		return adjacencyMatrix;
 	}
 	
-	//TODO this and the next two methods, possibly using the matrix
 	@Override
 	public Multiset<Edge> getEdgesAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+
 		int indexOfVertex = getIndexOf(vertex);
 		Multiset<Edge> edgesAt = HashMultiset.create();
-
+		for (int i = 0; i < getNoOfVertices(); i++) {
+			if (adjacencyMatrix[indexOfVertex][i] == adjacencyMatrix[i][indexOfVertex]) {
+				for (int k = 0; k < adjacencyMatrix[indexOfVertex][i]; k++) {
+					Edge edge = Edge.between(vertex).and(vertices.get(i));
+					edgesAt.add(edge);
+				}
+			}
+		}
 		return edgesAt;
 	}
 		
 	public Multiset<Edge> getEdgesFrom(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+
+		int indexOfVertex = getIndexOf(vertex);
 		Multiset<Edge> edgesFrom = HashMultiset.create();
-		for (Edge e : getEdges()) {
-			if (e.getStart().equals(vertex) && e.isDirected()) {
-				edgesFrom.add(e);
+		for (int i = 0; i < getNoOfVertices(); i++) {
+			if (adjacencyMatrix[indexOfVertex][i] > adjacencyMatrix[i][indexOfVertex]) {
+				for (int k = 0; k < adjacencyMatrix[indexOfVertex][i]; k++) {
+					Edge edge = Edge.from(vertex).to(vertices.get(i));
+					edgesFrom.add(edge);
+				}
 			}
 		}
 		return edgesFrom;
@@ -172,10 +184,15 @@ public class MatrixGraph extends AbstractGraph {
 	public Multiset<Edge> getEdgesTo(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+
+		int indexOfVertex = getIndexOf(vertex);
 		Multiset<Edge> edgesTo = HashMultiset.create();
-		for (Edge e : getEdges()) {
-			if (e.getEnd().equals(vertex) && e.isDirected()) {
-				edgesTo.add(e);
+		for (int i = 0; i < getNoOfVertices(); i++) {
+			if (adjacencyMatrix[indexOfVertex][i] < adjacencyMatrix[i][indexOfVertex]) {
+				for (int k = 0; k < adjacencyMatrix[indexOfVertex][i]; k++) {
+					Edge edge = Edge.from(vertices.get(i)).to(vertex);
+					edgesTo.add(edge);
+				}
 			}
 		}
 		return edgesTo;
@@ -382,7 +399,7 @@ public class MatrixGraph extends AbstractGraph {
 		adjacencyMatrix[startLabel][endLabel]--;
 	}
 		
-	// TODO directed/undirected
+	// TODO from here it's for undirected graphs only
 	public boolean isEulerian() {		
 		for (int i = 0; i < getNoOfVertices(); i++){
 			// each vertex covered exactly once
