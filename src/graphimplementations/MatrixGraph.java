@@ -8,6 +8,7 @@ import java.util.Set;
 
 import abstractclasses.AbstractGraph;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
@@ -87,6 +88,11 @@ public class MatrixGraph extends AbstractGraph {
 		return vertices.size();
 	}
 
+	@VisibleForTesting
+	List<Vertex> getListOfVertices() {
+		return vertices;
+	}
+	
 	@Override
 	public boolean isDirected() {
 		for (int i = 0; i < getNoOfVertices(); i++) {
