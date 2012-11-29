@@ -407,22 +407,13 @@ public class ListGraph extends AbstractGraph {
 		adjacencyList.get(startIndex).remove(end);
 	}
 
-	// TODO from here
 	public boolean isEulerian() {
-		
 		for (int i = 0; i < getAdjacencyList().size(); i++) {
-			boolean evenDegree = true;
-			Vertex vertex1 = vertices.get(i);
-			for (Vertex vertex2 : getAdjacencyList().get(i)) {
-				if (!vertex2.equals(vertex1)) {
-					evenDegree = !evenDegree;
-				}
-			}
-			if (!evenDegree) {
+			Vertex v = vertices.get(i);
+			if (getDegreeAt(v)%2 != 0 || getIndegreeAt(v) != getOutdegreeAt(v)) {
 				return false;
 			}
 		}
-
 		return true;
 	}
 }
