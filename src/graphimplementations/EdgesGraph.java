@@ -36,6 +36,8 @@ public class EdgesGraph extends AbstractGraph {
 					&& v.contains(edge.getEnd()),
 					"Endpoints of edges not in vertices");
 		}
+		// TODO edges/directedEdges well defined (no directed edge a,b 
+		// and directed edge b,a - but undirected edge a,b)
 		
 		this.vertices = v;
 		this.edges = e;
@@ -360,16 +362,6 @@ public class EdgesGraph extends AbstractGraph {
 
 	// TODO from here it is still with only undirected graphs	
 	
-	private List<Vertex> findAndRemoveCycle(EdgesGraph edgesGraph, Vertex startNode) {
-		List<Vertex> cycle = Lists.newArrayList(
-				edgesGraph.getCycle(edgesGraph, startNode).get());
-		for (Integer i = 0; i < cycle.size() - 1; i++) {
-			edgesGraph.removeEdge(cycle.get(i), cycle.get(i + 1));
-		}
-		edgesGraph.removeEdge(cycle.get(cycle.size() - 1), cycle.get(0));
-		return cycle;
-	}
-	
 	public List<Vertex> getEulerianCycle(EdgesGraph graph, Vertex startNode) {
 		Preconditions.checkArgument(vertices.contains(startNode), "Start node not in graph");
 		Preconditions.checkArgument(graph.isEulerian(), "Graph not Eulerian.");
@@ -391,6 +383,16 @@ public class EdgesGraph extends AbstractGraph {
 		return eulerianCycle;
 	}
 
+	private List<Vertex> findAndRemoveCycle(EdgesGraph edgesGraph, Vertex startNode) {
+		List<Vertex> cycle = Lists.newArrayList(
+				edgesGraph.getCycle(edgesGraph, startNode).get());
+		for (Integer i = 0; i < cycle.size() - 1; i++) {
+			edgesGraph.removeEdge(cycle.get(i), cycle.get(i + 1));
+		}
+		edgesGraph.removeEdge(cycle.get(cycle.size() - 1), cycle.get(0));
+		return cycle;
+	}
+	
 	public Optional<List<Vertex>> getCycle(EdgesGraph edgesGraph, Vertex startNode) {
 		Preconditions.checkArgument(vertices.contains(startNode), "Start node not in graph");
 
