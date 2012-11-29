@@ -132,6 +132,7 @@ public class ListGraph extends AbstractGraph {
 		return edges;
 	}
 
+	// TODO wrong - too many edges
 	@Override
 	public Multiset<Edge> getDirectedEdges() {
 		Multiset<Edge> edges = HashMultiset.create();
