@@ -103,6 +103,7 @@ public class ListGraph extends AbstractGraph {
 			return vertices.indexOf(vertex);
 		}
 
+	// TODO - wrong, it counts edges twice!
 	@Override
 	public Multiset<Edge> getEdges() {
 		Multiset<Edge> edges = HashMultiset.create();
@@ -165,12 +166,31 @@ public class ListGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
 		Multiset<Edge> edgesAt = HashMultiset.create();
-		for (Edge e : getEdges()) {
-			if ((e.getStart().equals(vertex) || e.getEnd().equals(vertex)) 
-					&& !e.isDirected()) {
-				edgesAt.add(e);
-			}
-		}
+		
+//		int indexStart = getIndexOf(vertex);
+//		for (Vertex end : adjacencyList.get(indexStart)) {
+//			int indexEnd = getIndexOf(end);
+//			if (end.equals(vertex) || 
+//				adjacencyList.get(indexStart).count(end) == adjacencyList.get(indexEnd).count(vertex)) {
+//				for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
+//					Edge e = Edge.between(vertex).and(end);
+//					edgesAt.add(e);
+//				}
+//			} else {
+//				int m = Math.min(adjacencyList.get(indexStart).count(end), adjacencyList.get(indexEnd).count(vertex));
+//				for (int i = 0; i < m; i++) {
+//					Edge e = Edge.between(vertex).and(end);
+//					edgesAt.add(e);
+//				}
+//			}
+//		}
+		
+//		for (Edge e : getEdges()) {
+//			if ((e.getStart().equals(vertex) || e.getEnd().equals(vertex)) 
+//					&& !e.isDirected()) {
+//				edgesAt.add(e);
+//			}
+//		}
 		return edgesAt;
 	}
 	
