@@ -164,13 +164,12 @@ public class ListGraph extends AbstractGraph {
 		return adjacencyList;
 	}	
 
-	//TODO this and the next two methods using the list
 	@Override
 	public Multiset<Edge> getEdgesAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
-		Multiset<Edge> edgesAt = HashMultiset.create();
 		
+		Multiset<Edge> edgesAt = HashMultiset.create();		
 		int indexStart = getIndexOf(vertex);
 		for (Vertex end : adjacencyList.get(indexStart)) {
 			int indexEnd = getIndexOf(end);
@@ -188,36 +187,40 @@ public class ListGraph extends AbstractGraph {
 				}
 			}
 		}
-		
-//		for (Edge e : getEdges()) {
-//			if ((e.getStart().equals(vertex) || e.getEnd().equals(vertex)) 
-//					&& !e.isDirected()) {
-//				edgesAt.add(e);
-//			}
-//		}
 		return edgesAt;
 	}
 	
-	//TODO using list
+	@Override
 	public Multiset<Edge> getEdgesFrom(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+
 		Multiset<Edge> edgesFrom = HashMultiset.create();
-		for (Edge e : getEdges()) {
-			if (e.getStart().equals(vertex) && e.isDirected()) {
-				edgesFrom.add(e);
+		int indexV = getIndexOf(vertex);
+		for (Vertex w : adjacencyList.get(indexV)) {
+			int indexW = getIndexOf(w);
+			if (!vertex.equals(w) && 
+				adjacencyList.get(indexV).count(w) > adjacencyList.get(indexW).count(vertex)) {
+				int m = adjacencyList.get(indexV).count(w) - adjacencyList.get(indexW).count(vertex);
+				for (int i = 0; i < m; i++) {
+					Edge e = Edge.from(vertex).to(w);
+					edgesFrom.add(e);
+				}
 			}
 		}
 		return edgesFrom;
 	}
 	
-	//TODO using list
+	// It's not a good idea to do it using the list 
+	// - we have to read the whole list anyway
+	// with the possible exception of the entry corresponding to the vertex
+	@Override
 	public Multiset<Edge> getEdgesTo(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
 		Multiset<Edge> edgesTo = HashMultiset.create();
-		for (Edge e : getEdges()) {
-			if (e.getEnd().equals(vertex) && e.isDirected()) {
+		for (Edge e : getDirectedEdges()) {
+			if (e.getEnd().equals(vertex)) {
 				edgesTo.add(e);
 			}
 		}
