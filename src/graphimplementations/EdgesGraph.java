@@ -314,6 +314,9 @@ public class EdgesGraph extends AbstractGraph {
 			}
 			return true;			
 		} else {
+			// this is the general case, we could also skip the if/else
+			// but on the other hand if the graph is not directed
+			// it's useless to check in/outdegree for each vertex
 			for (Vertex v : getVertices()) {
 				if ((getOutdegreeAt(v) != getIndegreeAt(v)) 
 						|| getDegreeAt(v)%2 != 0) {
