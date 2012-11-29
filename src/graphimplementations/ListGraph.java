@@ -76,48 +76,22 @@ public class ListGraph extends AbstractGraph {
 		return vertices;
 	}
 	
-	//TODO
 	@Override
 	public boolean isDirected() {
-		return false;
+		for (int i = 0; i < adjacencyList.size(); i++) {
+			Vertex vertex = vertices.get(i);
+			for (Vertex otherVertex : adjacencyList.get(i)) {
+				if (!otherVertex.equals(vertex)) {
+					int otherIndex = getIndexOf(otherVertex);
+					if (adjacencyList.get(i).count(otherVertex) != adjacencyList.get(otherIndex).count(vertex)) {
+						return false;
+					}					
+				}
+			}
+		}
+		return true;
 	}
 
-	//TODO
-	@Override
-	public Multiset<Edge> getEdges() {
-		Multiset<Edge> edges = HashMultiset.create();
-//		if (!isDirected()) {
-//			for (int i = 0; i < adjacencyList.size(); i++) {
-//				for (Vertex v : adjacencyList.get(i)) {
-//					if (vertices.indexOf(v) <= i) {
-//						Edge e = Edge.between(vertices.get(i)).and(v);
-//						edges.add(e);					
-//					}
-//				}
-//			}			
-//		} else {
-//			for (int i = 0; i < adjacencyList.size(); i++) {
-//				for (Vertex v : adjacencyList.get(i)) {
-//					Edge e = Edge.from(vertices.get(i)).to(v);
-//					edges.add(e);					
-//				}
-//			}
-//		}
-		return edges;
-	}
-
-	//TODO
-	public Multiset<Edge> getDirectedEdges() {
-		Multiset<Edge> edges = HashMultiset.create();
-		return edges;
-	}
-
-	
-	public List<Multiset<Vertex>> getAdjacencyList() {
-		return adjacencyList;
-	}	
-
-	
 	/**
 	 * 	
 	 * @param vertex
@@ -128,6 +102,62 @@ public class ListGraph extends AbstractGraph {
 					"Vertex not in graph.");		
 			return vertices.indexOf(vertex);
 		}
+
+	@Override
+	public Multiset<Edge> getEdges() {
+		Multiset<Edge> edges = HashMultiset.create();
+		for (int indexStart = 0; indexStart < adjacencyList.size(); indexStart++) {
+			Vertex start = vertices.get(indexStart);
+			for (Vertex end : adjacencyList.get(indexStart)) {
+				int indexEnd = getIndexOf(end);
+				if (end.equals(start) || 
+					adjacencyList.get(indexStart).count(end) == adjacencyList.get(indexEnd).count(start)) {
+					for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
+						Edge e = Edge.between(start).and(end);
+						edges.add(e);
+					}
+				} else {
+					int m = Math.min(adjacencyList.get(indexStart).count(end), adjacencyList.get(indexEnd).count(start));
+					for (int i = 0; i < m; i++) {
+						Edge e = Edge.between(start).and(end);
+						edges.add(e);
+					}
+				}
+			}
+		}
+		return edges;
+	}
+
+	public Multiset<Edge> getDirectedEdges() {
+		Multiset<Edge> edges = HashMultiset.create();
+		for (int indexV = 0; indexV < adjacencyList.size(); indexV++) {
+			Vertex v = vertices.get(indexV);
+			for (Vertex w : adjacencyList.get(indexV)) {
+				int indexW = getIndexOf(w);
+				if (!w.equals(v) && 
+					adjacencyList.get(indexV).count(w) != adjacencyList.get(indexW).count(v)) {
+					int noOfDirected = Math.abs(adjacencyList.get(indexV).count(w) - adjacencyList.get(indexW).count(v));
+					if (adjacencyList.get(indexV).count(w) > adjacencyList.get(indexW).count(v)) {
+						for (int i = 0; i < noOfDirected; i++) {
+							Edge e = Edge.from(v).to(w);
+							edges.add(e);
+						}						
+					} else {
+						for (int i = 0; i < noOfDirected; i++) {
+							Edge e = Edge.from(w).to(v);
+							edges.add(e);
+						}
+					}
+				}
+			}
+		}
+		return edges;
+	}
+
+	
+	public List<Multiset<Vertex>> getAdjacencyList() {
+		return adjacencyList;
+	}	
 
 	//TODO this and the next two methods using the list
 	@Override
