@@ -103,7 +103,6 @@ public class ListGraph extends AbstractGraph {
 			return vertices.indexOf(vertex);
 		}
 
-	// TODO - wrong, it counts edges twice!
 	@Override
 	public Multiset<Edge> getEdges() {
 		Multiset<Edge> edges = HashMultiset.create();
@@ -113,22 +112,27 @@ public class ListGraph extends AbstractGraph {
 				int indexEnd = getIndexOf(end);
 				if (end.equals(start) || 
 					adjacencyList.get(indexStart).count(end) == adjacencyList.get(indexEnd).count(start)) {
-					for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
+					if (indexStart <= indexEnd) {
+						for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
 						Edge e = Edge.between(start).and(end);
 						edges.add(e);
+						}
 					}
 				} else {
 					int m = Math.min(adjacencyList.get(indexStart).count(end), adjacencyList.get(indexEnd).count(start));
-					for (int i = 0; i < m; i++) {
-						Edge e = Edge.between(start).and(end);
-						edges.add(e);
+					if (indexStart < indexEnd) {
+						for (int i = 0; i < m; i++) {
+							Edge e = Edge.between(start).and(end);
+							edges.add(e);
+						}
 					}
-				}
+				}	
 			}
 		}
 		return edges;
 	}
 
+	@Override
 	public Multiset<Edge> getDirectedEdges() {
 		Multiset<Edge> edges = HashMultiset.create();
 		for (int indexV = 0; indexV < adjacencyList.size(); indexV++) {
@@ -167,23 +171,23 @@ public class ListGraph extends AbstractGraph {
 				"Vertex not in graph.");
 		Multiset<Edge> edgesAt = HashMultiset.create();
 		
-//		int indexStart = getIndexOf(vertex);
-//		for (Vertex end : adjacencyList.get(indexStart)) {
-//			int indexEnd = getIndexOf(end);
-//			if (end.equals(vertex) || 
-//				adjacencyList.get(indexStart).count(end) == adjacencyList.get(indexEnd).count(vertex)) {
-//				for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
-//					Edge e = Edge.between(vertex).and(end);
-//					edgesAt.add(e);
-//				}
-//			} else {
-//				int m = Math.min(adjacencyList.get(indexStart).count(end), adjacencyList.get(indexEnd).count(vertex));
-//				for (int i = 0; i < m; i++) {
-//					Edge e = Edge.between(vertex).and(end);
-//					edgesAt.add(e);
-//				}
-//			}
-//		}
+		int indexStart = getIndexOf(vertex);
+		for (Vertex end : adjacencyList.get(indexStart)) {
+			int indexEnd = getIndexOf(end);
+			if (end.equals(vertex) || 
+				adjacencyList.get(indexStart).count(end) == adjacencyList.get(indexEnd).count(vertex)) {
+				for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
+					Edge e = Edge.between(vertex).and(end);
+					edgesAt.add(e);
+				}
+			} else {
+				int m = Math.min(adjacencyList.get(indexStart).count(end), adjacencyList.get(indexEnd).count(vertex));
+				for (int i = 0; i < m; i++) {
+					Edge e = Edge.between(vertex).and(end);
+					edgesAt.add(e);
+				}
+			}
+		}
 		
 //		for (Edge e : getEdges()) {
 //			if ((e.getStart().equals(vertex) || e.getEnd().equals(vertex)) 
