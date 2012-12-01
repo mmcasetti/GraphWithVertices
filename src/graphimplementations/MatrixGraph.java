@@ -18,8 +18,10 @@ import com.google.common.collect.Sets;
 /**
  * 
  * A class to implement a multigraph, seen as an adjacency matrix. A list of
- * vertices keeps track of the vertices corresponding to the rows/columns of the
- * matrix independently of their label.
+ * vertices keeps track of the vertices corresponding to the rows/columns of 
+ * the matrix independently of their label. A boolean keeps track of whether 
+ * the graph is directed/undirected (needed if the matrix is symmetric).
+ * 
  * 
  * @author mmcasetti
  * 
@@ -70,29 +72,6 @@ public class MatrixGraph extends AbstractGraph {
 		this.isDirected = directed;
 	}
 
-	/**
-	 * @param other
-	 * @return if the graphs are equal - two matrixgraph are equal iff their
-	 *         matrices are equal and are both directed or undirected
-	 */
-	@Override
-	public boolean equals(Object other) {
-		if (super.equals(other)) {
-			return true;
-		}
-		if (!(other instanceof Graph)) {
-			return false;
-		}
-		if (!(other instanceof MatrixGraph)) {
-			AbstractGraph otherGraph = (AbstractGraph) other;
-			return otherGraph.equals(this);
-		} else {
-			MatrixGraph otherMatrixGraph = (MatrixGraph) other;
-			return (Arrays.deepEquals(otherMatrixGraph.getMatrix(), this.getMatrix()) 
-					&& this.isDirected == otherMatrixGraph.isDirected);
-		}
-	}
-
 	@Override
 	public Set<Vertex> getVertices() {
 		return Sets.newHashSet(vertices);
@@ -117,11 +96,6 @@ public class MatrixGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(vertex),
 				"Vertex not in graph.");
 		return vertices.indexOf(vertex);
-	}
-
-	@Override
-	public boolean isDirected() {
-		return isDirected;
 	}
 
 	@Override
@@ -158,13 +132,53 @@ public class MatrixGraph extends AbstractGraph {
 		return edges;
 	}
 
+	@Override
+	public boolean isDirected() {
+		return isDirected;
+	}
+
 	public int[][] getMatrix() {
 		return adjacencyMatrix;
 	}
 
+	/**
+	 * @param other
+	 * @return if the graphs are equal - two matrixgraph are equal iff their
+	 *         matrices are equal and are both directed or undirected
+	 */
+	@Override
+	public boolean equals(Object other) {
+		if (super.equals(other)) {
+			return true;
+		}
+		if (!(other instanceof Graph)) {
+			return false;
+		}
+		if (!(other instanceof MatrixGraph)) {
+			AbstractGraph otherGraph = (AbstractGraph) other;
+			return otherGraph.equals(this);
+		} else {
+			MatrixGraph otherMatrixGraph = (MatrixGraph) other;
+			return (Arrays.deepEquals(otherMatrixGraph.getMatrix(), this.getMatrix()) 
+					&& this.isDirected == otherMatrixGraph.isDirected);
+		}
+	}
+
+	@Override
+	public Graph makeUndirected() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Graph makeDirected() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	@Override
 	public Multiset<Edge> getEdgesAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex),
+		Preconditions.checkArgument(getVertices().contains(vertex),
 				"Vertex not in graph.");
 		Preconditions.checkArgument(!isDirected(), "Use getEdgesFrom and getEdgesTo.");
 		
@@ -178,7 +192,7 @@ public class MatrixGraph extends AbstractGraph {
 	}
 
 	public Multiset<Edge> getEdgesFrom(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex),
+		Preconditions.checkArgument(getVertices().contains(vertex),
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), "Use getEdgesAt.");
 		
@@ -192,7 +206,7 @@ public class MatrixGraph extends AbstractGraph {
 	}
 
 	public Multiset<Edge> getEdgesTo(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex),
+		Preconditions.checkArgument(getVertices().contains(vertex),
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), "Use getEdgesAt.");
 
@@ -207,7 +221,7 @@ public class MatrixGraph extends AbstractGraph {
 
 	@Override
 	public int getDegreeAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex),
+		Preconditions.checkArgument(getVertices().contains(vertex),
 				"Vertex not in graph.");
 		Preconditions.checkArgument(!isDirected(), "Use getOutdegreeAt and getIndegreeAt.");
 		
@@ -216,7 +230,7 @@ public class MatrixGraph extends AbstractGraph {
 
 	@Override
 	public int getOutdegreeAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex),
+		Preconditions.checkArgument(getVertices().contains(vertex),
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), "Use getDegreeAt.");
 
@@ -225,19 +239,17 @@ public class MatrixGraph extends AbstractGraph {
 
 	@Override
 	public int getIndegreeAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex),
+		Preconditions.checkArgument(getVertices().contains(vertex),
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), "Use getDegreeAt.");
 		
 		return getEdgesTo(vertex).size();
 	}
 
-	//TODO from here
-
 	@Override
 	public void addVertices(Set<Vertex> newVertices) {
 		for (Vertex v : newVertices) {
-			Preconditions.checkArgument(!vertices.contains(v),
+			Preconditions.checkArgument(!getVertices().contains(v),
 					"New vertex already in graph.");
 		}
 
@@ -246,24 +258,18 @@ public class MatrixGraph extends AbstractGraph {
 		int[][] newMatrix = new int[newNoOfVertices][newNoOfVertices];
 		for (int i = 0; i < getNoOfVertices(); i++) {
 			for (int j = 0; j < getNoOfVertices(); j++) {
-				newMatrix[i][j] = adjacencyMatrix[i][j];
+				newMatrix[i][j] = getMatrix()[i][j];
 			}
 		}
 		adjacencyMatrix = newMatrix;
-		vertices.addAll(newVertices);
+		getVertices().addAll(newVertices);
 	}
 
 	@Override
 	public void removeVertex(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex),
+		Preconditions.checkArgument(getVertices().contains(vertex),
 				"Vertex not in graph.");
 
-		List<Vertex> newVertices = Lists.newArrayList();
-		for (Vertex v : vertices) {
-			if (!v.equals(vertex)) {
-				newVertices.add(v);
-			}
-		}
 		int index = getIndexOf(vertex);
 		int newNoOfVertices = getNoOfVertices() - 1;
 		int[][] newMatrix = new int[newNoOfVertices][newNoOfVertices];
@@ -279,16 +285,16 @@ public class MatrixGraph extends AbstractGraph {
 			}
 		}
 		adjacencyMatrix = newMatrix;
-		// TODO just remove the vertices
-		vertices = newVertices;
+		getVertices().remove(vertex);
 	}
 
 	@Override
 	public void addUndirectedEdge(Edge edge) {
-		Preconditions.checkArgument(vertices.contains(edge.getStart())
-				&& vertices.contains(edge.getEnd()),
+		Preconditions.checkArgument(getVertices().contains(edge.getStart())
+				&& getVertices().contains(edge.getEnd()),
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(!edge.isDirected(), "Use addDirectedEdge.");
+		Preconditions.checkArgument(!edge.isDirected() && !isDirected(), 
+				"Use addDirectedEdge.");
 
 		int startLabel = getIndexOf(edge.getStart());
 		int endLabel = getIndexOf(edge.getEnd());
@@ -301,10 +307,11 @@ public class MatrixGraph extends AbstractGraph {
 
 	@Override
 	public void addDirectedEdge(Edge edge) {
-		Preconditions.checkArgument(vertices.contains(edge.getStart())
-				&& vertices.contains(edge.getEnd()),
+		Preconditions.checkArgument(getVertices().contains(edge.getStart())
+				&& getVertices().contains(edge.getEnd()),
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(edge.isDirected(), "Use addEdge.");
+		Preconditions.checkArgument(edge.isDirected() && isDirected(), 
+				"Use addUndirectedEdge.");
 
 		int startLabel = getIndexOf(edge.getStart());
 		int endLabel = getIndexOf(edge.getEnd());
@@ -317,7 +324,8 @@ public class MatrixGraph extends AbstractGraph {
 		Preconditions.checkArgument(
 				vertices.contains(start) && vertices.contains(end),
 				"Edge's endpoints not in graph.");
-
+		Preconditions.checkArgument(!isDirected(), "Use addDirectedEdge.");
+		
 		int startLabel = getIndexOf(start);
 		int endLabel = getIndexOf(end);
 
@@ -332,6 +340,7 @@ public class MatrixGraph extends AbstractGraph {
 		Preconditions.checkArgument(
 				vertices.contains(start) && vertices.contains(end),
 				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(isDirected(), "Use addUndirectedEdge.");
 
 		int startLabel = getIndexOf(start);
 		int endLabel = getIndexOf(end);
@@ -467,17 +476,5 @@ public class MatrixGraph extends AbstractGraph {
 			}
 		}
 		return true;
-	}
-
-	@Override
-	public Graph makeUndirected() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Graph makeDirected() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
