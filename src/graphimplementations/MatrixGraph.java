@@ -239,7 +239,12 @@ public class MatrixGraph extends AbstractGraph {
 				"Vertex not in graph.");
 		Preconditions.checkArgument(!isDirected(), "Use getOutdegreeAt and getIndegreeAt.");
 		
-		return getEdgesAt(vertex).size();
+		int degree = 0;
+		for (int i = 0; i < getMatrix().length; i++) {
+			degree += getMatrix()[getIndexOf(vertex)][i];						
+		}
+		
+		return degree;
 	}
 
 	@Override
@@ -248,7 +253,11 @@ public class MatrixGraph extends AbstractGraph {
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), "Use getDegreeAt.");
 
-		return getEdgesFrom(vertex).size();
+		int outdegree = 0;
+		for (int i = 0; i < getMatrix().length; i++) {
+			outdegree += getMatrix()[getIndexOf(vertex)][i];
+		}
+		return outdegree;
 	}
 
 	@Override
@@ -257,7 +266,11 @@ public class MatrixGraph extends AbstractGraph {
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), "Use getDegreeAt.");
 		
-		return getEdgesTo(vertex).size();
+		int indegree = 0;
+		for (int i = 0; i < getMatrix().length; i++) {
+			indegree += getMatrix()[i][getIndexOf(vertex)];
+		}
+		return indegree;
 	}
 
 	@Override
@@ -435,10 +448,31 @@ public class MatrixGraph extends AbstractGraph {
 		adjacencyMatrix[startLabel][endLabel]--;
 	}
 
-	//TODO
 	public boolean isEulerian() {
-		for (int v = 0; v < getMatrix().length; v++) {
-			
+		if (!isDirected()) {
+			for (int v = 0; v < getMatrix().length; v++) {
+				int degreeMinusLoops = 0;
+				for (int i = 0; i < getMatrix().length; i++) {
+					if (i != v) {
+						degreeMinusLoops += getMatrix()[v][i];						
+					}
+				}
+				if (degreeMinusLoops % 2 != 0) {
+					return false;
+				}
+			}			
+		} else {
+			for (int v = 0; v < getMatrix().length; v++) {
+				int indegree = 0;
+				int outdegree = 0;
+				for (int i = 0; i < getMatrix().length; i++) {
+					indegree += getMatrix()[i][v];
+					outdegree += getMatrix()[v][i];
+				}
+				if (indegree != outdegree) {
+					return false;
+				}
+			}
 		}
 		return true;
 	}
