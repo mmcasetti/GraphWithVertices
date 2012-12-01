@@ -17,7 +17,10 @@ public abstract class AbstractGraph implements Graph {
 		if (!this.getVertices().equals(otherGraph.getVertices())){
 			return false;
 		}
-		if (!this.getEdges().equals(otherGraph.getEdges())) {
+		if (!this.getUndirectedEdges().equals(otherGraph.getUndirectedEdges())) {
+			return false;
+		}
+		if (!this.getDirectedEdges().equals(otherGraph.getDirectedEdges())) {
 			return false;
 		}
 		
