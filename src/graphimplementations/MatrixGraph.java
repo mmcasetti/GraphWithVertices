@@ -166,14 +166,28 @@ public class MatrixGraph extends AbstractGraph {
 
 	@Override
 	public Graph makeUndirected() {
-		// TODO Auto-generated method stub
-		return null;
+		if (!isDirected()) {
+			return this;
+		} else {
+			int[][] newMatrix = new int[getMatrix().length][getMatrix().length];
+			for (int i = 0; i < newMatrix.length; i++) {
+				newMatrix[i][i] = getMatrix()[i][i];
+				for (int j = 0; j < i; j++) {
+					newMatrix[i][j] = getMatrix()[i][j] + getMatrix()[j][i];
+					newMatrix[j][i] = newMatrix[i][j];
+				}
+			}
+			return new MatrixGraph(newMatrix, getListOfVertices(), false);
+		}
 	}
 
 	@Override
 	public Graph makeDirected() {
-		// TODO Auto-generated method stub
-		return null;
+		if (isDirected()) {
+			return this;
+		} else {
+			return new MatrixGraph(getMatrix(), getListOfVertices(), true);
+		}
 	}
 
 	@Override
@@ -355,7 +369,8 @@ public class MatrixGraph extends AbstractGraph {
 				"Edge's endpoints not in graph.");
 		Preconditions.checkArgument(getUndirectedEdges().contains(edge),
 				"Edge not in graph.");
-		Preconditions.checkArgument(!edge.isDirected(), "Use addDirectedEdge.");
+		Preconditions.checkArgument(!edge.isDirected() && !isDirected(), 
+				"Use addDirectedEdge.");
 
 		int startLabel = getIndexOf(edge.getStart());
 		int endLabel = getIndexOf(edge.getEnd());
@@ -373,7 +388,8 @@ public class MatrixGraph extends AbstractGraph {
 				"Edge's endpoints not in graph.");
 		Preconditions.checkArgument(getUndirectedEdges().contains(edge),
 				"Edge not in graph.");
-		Preconditions.checkArgument(edge.isDirected(), "Use removeEdge.");
+		Preconditions.checkArgument(edge.isDirected() && isDirected(), 
+				"Use removeUndirectedEdge.");
 
 		int startLabel = getIndexOf(edge.getStart());
 		int endLabel = getIndexOf(edge.getEnd());
@@ -386,10 +402,13 @@ public class MatrixGraph extends AbstractGraph {
 		Preconditions.checkArgument(
 				vertices.contains(start) && vertices.contains(end),
 				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(!isDirected(), "Use addDirectedEdge.");
+
 		Edge edge = Edge.between(start).and(end);
 		Preconditions.checkArgument(getUndirectedEdges().contains(edge),
 				"Edge not in graph.");
 
+		
 		int startLabel = getIndexOf(start);
 		int endLabel = getIndexOf(end);
 
@@ -404,6 +423,8 @@ public class MatrixGraph extends AbstractGraph {
 		Preconditions.checkArgument(
 				vertices.contains(start) && vertices.contains(end),
 				"Edge's endpoints not in graph.");
+		Preconditions.checkArgument(isDirected(), "Use addUndirectedEdge.");
+		
 		Edge edge = Edge.between(start).and(end);
 		Preconditions.checkArgument(getUndirectedEdges().contains(edge),
 				"Edge not in graph.");
@@ -414,29 +435,15 @@ public class MatrixGraph extends AbstractGraph {
 		adjacencyMatrix[startLabel][endLabel]--;
 	}
 
+	//TODO
 	public boolean isEulerian() {
-		for (int v = 0; v < getNoOfVertices(); v++) {
-			int undirected = 0;
-			int out = 0;
-			int in = 0;
-			for (int j = 0; j < getNoOfVertices(); j++) {
-				if (j != v) {
-					undirected += Math.min(adjacencyMatrix[v][j],
-							adjacencyMatrix[j][v]);
-					if (adjacencyMatrix[v][j] < adjacencyMatrix[j][v]) {
-						in += (adjacencyMatrix[j][v] - adjacencyMatrix[v][j]);
-					} else if (adjacencyMatrix[v][j] > adjacencyMatrix[j][v]) {
-						out += (adjacencyMatrix[v][j] - adjacencyMatrix[j][v]);
-					}
-				}
-			}
-			if (undirected % 2 == 1 || (in - out) != 0) {
-				return false;
-			}
+		for (int v = 0; v < getMatrix().length; v++) {
+			
 		}
 		return true;
 	}
 
+	//TODO
 	public boolean isPerfectMatching(int[][] dirSubset) {
 		Preconditions.checkArgument(dirSubset.length == vertices.size(),
 				"Not enough or too many vertices in subset");
