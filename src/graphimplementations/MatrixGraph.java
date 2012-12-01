@@ -477,39 +477,44 @@ public class MatrixGraph extends AbstractGraph {
 		return true;
 	}
 
-	//TODO
-	public boolean isPerfectMatching(int[][] dirSubset) {
-		Preconditions.checkArgument(dirSubset.length == vertices.size(),
+	public boolean isPerfectMatching(int[][] subset) {
+		Preconditions.checkArgument(subset.length == getVertices().size(),
 				"Not enough or too many vertices in subset");
+		
 		// precondition: subset is subset of edges
-		for (int i = 0; i < dirSubset.length; i++) {
-			for (int j = 0; j < dirSubset.length; j++) {
+		for (int i = 0; i < subset.length; i++) {
+			for (int j = 0; j < subset.length; j++) {
 				Preconditions.checkArgument(
-						dirSubset[i][j] <= adjacencyMatrix[i][j],
+						subset[i][j] <= getMatrix()[i][j],
 						"Not a subset of edges");
 			}
 		}
 
-		// if we have a directed edge (that is, an entry +1 in [a][b])
-		// we want to consider it as an undirected edge (+1 in [a][b] and +1 in
-		// [b][a])
-		int[][] subset = new int[dirSubset.length][dirSubset.length];
-		for (int i = 0; i < subset.length; i++) {
-			for (int j = 0; j < subset.length; j++) {
-				subset[i][j] = Math.max(dirSubset[i][j], dirSubset[j][i]);
-			}
-		}
+		int[][] undirectedSubset = new int[subset.length][subset.length];
 
+		if (!isDirected()) {
+			undirectedSubset = subset;
+		} else {
+			// if we have a directed edge (that is, an entry +1 in [a][b])
+			// we want to consider it as an undirected edge (+1 in [a][b] and +1 in
+			// [b][a])
+			for (int i = 0; i < undirectedSubset.length; i++) {
+				for (int j = 0; j < undirectedSubset.length; j++) {
+					undirectedSubset[i][j] = Math.max(subset[i][j], subset[j][i]);
+				}
+			}			
+		}
+		
 		for (int v = 0; v < vertices.size(); v++) {
 			// no loops
-			if (subset[v][v] > 0) {
+			if (undirectedSubset[v][v] > 0) {
 				return false;
 			}
 			// each vertex covered exactly once
 			else {
 				int rowSum = 0;
 				for (int j = 0; j < vertices.size(); j++) {
-					rowSum += subset[v][j];
+					rowSum += undirectedSubset[v][j];
 					if (rowSum > 1) {
 						return false;
 					}
