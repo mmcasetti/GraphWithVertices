@@ -34,17 +34,17 @@ public class EdgesGraph extends AbstractGraph {
 	 * @param edges: undirected edges of the graph
 	 * @param directed: directed edges of the graph
 	 * if there are directed edges, there are no undirected edges - and 
-	 * viceversa.
+	 * vice versa.
 	 * 
 	 */
-	public EdgesGraph(Set<Vertex> vertices, Multiset<Edge> edges, Multiset<Edge> directed) {
-		if (!edges.isEmpty()) {
+	public EdgesGraph(Set<Vertex> vertices, Multiset<Edge> undirectedEdges, Multiset<Edge> directed) {
+		if (!undirectedEdges.isEmpty()) {
 			Preconditions.checkArgument(directedEdges.isEmpty(), "Choose between directed and undirected graph.");
 		}
 		if (!directedEdges.isEmpty()) {
-			Preconditions.checkArgument(edges.isEmpty(), "Choose between directed and undirected graph.");
+			Preconditions.checkArgument(undirectedEdges.isEmpty(), "Choose between directed and undirected graph.");
 		}
-		for (Edge edge : edges) {
+		for (Edge edge : undirectedEdges) {
 			Preconditions.checkArgument(
 					vertices.contains(edge.getStart()) && vertices.contains(edge.getEnd()),
 					"Endpoints of edges not in vertices");
@@ -58,7 +58,7 @@ public class EdgesGraph extends AbstractGraph {
 		}
 		
 		this.vertices = vertices;
-		this.undirectedEdges = edges;
+		this.undirectedEdges = undirectedEdges;
 		this.directedEdges = directed;
 	}
 

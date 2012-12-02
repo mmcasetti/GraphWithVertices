@@ -32,7 +32,7 @@ public class MatrixGraph extends AbstractGraph {
 	private List<Vertex> vertices;
 	private boolean isDirected;
 
-	public MatrixGraph(int[][] matrix, List<Vertex> vertices, boolean directed) {
+	public MatrixGraph(List<Vertex> vertices, int[][] matrix, boolean directed) {
 		Preconditions.checkArgument(matrix.length == vertices.size(),
 				"Too many or too few vertices");
 		for (int i = 0; i < matrix.length; i++) {
@@ -177,7 +177,7 @@ public class MatrixGraph extends AbstractGraph {
 					newMatrix[j][i] = newMatrix[i][j];
 				}
 			}
-			return new MatrixGraph(newMatrix, getListOfVertices(), false);
+			return new MatrixGraph(getListOfVertices(), newMatrix, false);
 		}
 	}
 
@@ -186,7 +186,7 @@ public class MatrixGraph extends AbstractGraph {
 		if (isDirected()) {
 			return this;
 		} else {
-			return new MatrixGraph(getMatrix(), getListOfVertices(), true);
+			return new MatrixGraph(getListOfVertices(), getMatrix(), true);
 		}
 	}
 
