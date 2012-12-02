@@ -14,6 +14,9 @@ public abstract class AbstractGraph implements Graph {
 		}
 			
 		AbstractGraph otherGraph = (AbstractGraph) other;
+		if (this.isDirected() != otherGraph.isDirected()) {
+			return false;
+		}
 		if (!this.getVertices().equals(otherGraph.getVertices())){
 			return false;
 		}
