@@ -100,8 +100,10 @@ public class MatrixGraph extends AbstractGraph {
 
 	@Override
 	public Multiset<Edge> getUndirectedEdges() {
-		Preconditions.checkArgument(!isDirected(), "Directed graph, use getDirectedEdges.");
-
+		if (isDirected()) {
+			return HashMultiset.<Edge>create();
+		}
+			
 		Multiset<Edge> edges = HashMultiset.create();
 		for (int i = 0; i < getMatrix().length; i++) {
 			for (int j = 0; j <= i; j++) {
@@ -116,7 +118,9 @@ public class MatrixGraph extends AbstractGraph {
 
 	@Override
 	public Multiset<Edge> getDirectedEdges() {
-		Preconditions.checkArgument(isDirected(), "Undirected graph, use getUndirectedEdges.");
+		if (!isDirected()) {
+			return HashMultiset.<Edge>create();
+		}
 		
 		Multiset<Edge> edges = HashMultiset.create();
 		for (int i = 0; i < getMatrix().length; i++) {
