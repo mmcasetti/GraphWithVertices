@@ -1,7 +1,6 @@
 package factories;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,87 +16,152 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Multiset;
 
 
-// TODO preconditions
-// TODO directed graphs
-
 public class EdgesGraphFactory {
 	
-	public EdgesGraph createEdgesGraph(Set<Vertex> vertices, Multiset<Edge> edges) {
-		for (Edge edge : edges) {
+	public EdgesGraph createEdgesGraph(Set<Vertex> vertices, Multiset<Edge> undirectedEdges, Multiset<Edge> directedEdges) {
+		if (!undirectedEdges.isEmpty()) {
+			Preconditions.checkArgument(directedEdges.isEmpty(), "Choose between directed and undirected graph.");
+		}
+		if (!directedEdges.isEmpty()) {
+			Preconditions.checkArgument(undirectedEdges.isEmpty(), "Choose between directed and undirected graph.");
+		}
+		for (Edge edge : undirectedEdges) {
 			Preconditions.checkArgument(vertices.contains(edge.getStart()) && vertices.contains(edge.getEnd()),
 					"Endpoints of edges not in vertices");
 		}
+		for (Edge edge : directedEdges) {
+			Preconditions.checkArgument(vertices.contains(edge.getStart()) && vertices.contains(edge.getEnd()),
+					"Endpoints of edges not in vertices");
+		}
+		for (Edge edge : undirectedEdges) {
+			Preconditions.checkArgument(!edge.isDirected(),
+					"Directed edge in edges");
+		}
+		for (Edge edge : directedEdges) {
+			Preconditions.checkArgument(edge.isDirected(),
+					"Nondirected edge in directed edges");
+		}
 
-		return new EdgesGraph(vertices, edges);
+		return new EdgesGraph(vertices, undirectedEdges, directedEdges);
 	}
 
-	public EdgesGraph createEdgesGraph(int[][] matrix) {
+	public EdgesGraph createEdgesGraph(int[][] matrix, boolean isDirected) {
 		for (int i = 0; i < matrix.length; i++) {
 			Preconditions.checkArgument(matrix[i].length == matrix.length,
 					"Matrix not square");
+			if (!isDirected) {
+				for (int j = 0; j < matrix.length; j++) {
+					Preconditions.checkArgument(matrix[i][j] == matrix[j][i], 
+							"Matrix not symmetric in undirected graph");
+				}
+			}
 		}
 		
 		List<Vertex> vertices = Lists.newArrayList();
-		Multiset<Edge> edges = HashMultiset.create();
-		
 		for (int i = 0; i < matrix.length; i++) { 
 			Vertex v = new Vertex();
 			vertices.add(v);
 		}
 		
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j <= i; j++) {
-				Vertex start = vertices.get(i);
-				Vertex end = vertices.get(j);
-				Edge edge = Edge.between(start).and(end);
-				edges.add(edge, matrix[i][j]);
+		Set<Vertex> verticesSet = Sets.newHashSet(vertices);		
+
+		Multiset<Edge> undirectedEdges = HashMultiset.create();
+		Multiset<Edge> directedEdges = HashMultiset.create();
+
+		if (!isDirected) {
+			for (int i = 0; i < matrix.length; i++) {
+				for (int j = 0; j <= i; j++) {
+					Edge edge = Edge.between(vertices.get(i)).and(vertices.get(j));
+					undirectedEdges.add(edge, matrix[i][j]);
+				}
+			}
+		} else {
+			for (int i = 0; i < matrix.length; i++) {
+				for (int j = 0; j < matrix.length; j++) {
+					Edge edge = Edge.from(vertices.get(i)).to(vertices.get(j));
+					undirectedEdges.add(edge, matrix[i][j]);
+				}
 			}
 		}
 
-		Set<Vertex> verticesSet = Sets.newHashSet(vertices);
-		return new EdgesGraph(verticesSet, edges);
+		return new EdgesGraph(verticesSet, undirectedEdges, directedEdges);
 	}
 
-	public EdgesGraph createEdgesGraph(int[][] matrix, List<Vertex> vertices) {
+	public EdgesGraph createEdgesGraph(List<Vertex> vertices, int[][] matrix, boolean isDirected) {
 		Preconditions.checkArgument(matrix.length == vertices.size(),
 				"Too many or too few vertices");
 		for (int i = 0; i < matrix.length; i++) {
 			Preconditions.checkArgument(matrix[i].length == matrix.length,
 					"Matrix not square");
-		}
-		
-		Multiset<Edge> edges = HashMultiset.create();
-		
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j <= i; j++) {
-				Vertex start = vertices.get(i);
-				Vertex end = vertices.get(j);
-				Edge edge = Edge.between(start).and(end);
-				edges.add(edge, matrix[i][j]);
+			if (!isDirected) {
+				for (int j = 0; j < matrix.length; j++) {
+					Preconditions.checkArgument(matrix[i][j] == matrix[j][i], 
+							"Matrix not symmetric in undirected graph");
+				}
 			}
 		}
 
-		Set<Vertex> verticesSet = Sets.newHashSet(vertices);
-		return new EdgesGraph(verticesSet, edges);
+		Set<Vertex> verticesSet = Sets.newHashSet(vertices);		
+		
+		Multiset<Edge> undirectedEdges = HashMultiset.create();
+		Multiset<Edge> directedEdges = HashMultiset.create();
+
+		if (!isDirected) {
+			for (int i = 0; i < matrix.length; i++) {
+				for (int j = 0; j <= i; j++) {
+					Edge edge = Edge.between(vertices.get(i)).and(vertices.get(j));
+					undirectedEdges.add(edge, matrix[i][j]);
+				}
+			}
+		} else {
+			for (int i = 0; i < matrix.length; i++) {
+				for (int j = 0; j < matrix.length; j++) {
+					Edge edge = Edge.from(vertices.get(i)).to(vertices.get(j));
+					undirectedEdges.add(edge, matrix[i][j]);
+				}
+			}
+		}
+
+		return new EdgesGraph(verticesSet, undirectedEdges, directedEdges);
 	}
 
-	
-	public EdgesGraph createEdgesGraph(List<Vertex> vertices, ArrayList<Multiset<Vertex>> adjacencyList) {
+	public EdgesGraph createEdgesGraph(List<Vertex> vertices, ArrayList<Multiset<Vertex>> adjacencyList, boolean isDirected) {
 		Preconditions.checkArgument(vertices.size() == adjacencyList.size(),
 				"Too many or too few vertices");
-
-		Set<Vertex> verticesSet = Sets.newHashSet(vertices);
-		Multiset<Edge> edges = HashMultiset.create();
-		for (int i = 0; i < adjacencyList.size(); i++) {
-			for (Vertex vertex : adjacencyList.get(i)) {
-				if (vertices.indexOf(vertex) <= i) {
-					Vertex v = vertices.get(i);
-					Edge edge = Edge.between(vertex).and(v);
-					edges.add(edge);					
+		if (!isDirected) {
+			for (int i = 0; i < adjacencyList.size(); i++) {
+				for (Vertex v : adjacencyList.get(i)) {
+					int indexV = vertices.indexOf(v);
+					Preconditions.checkArgument(adjacencyList.get(i).count(v) == adjacencyList.get(indexV).count(vertices.get(i)));												
 				}
 			}
 		}
 		
-		return new EdgesGraph(verticesSet, edges);
+		Set<Vertex> verticesSet = Sets.newHashSet(vertices);
+
+		Multiset<Edge> undirectedEdges = HashMultiset.create();
+		Multiset<Edge> directedEdges = HashMultiset.create();
+
+		if (!isDirected) {
+			for (int i = 0; i < adjacencyList.size(); i++) {
+				for (Vertex vertex : adjacencyList.get(i)) {
+					if (vertices.indexOf(vertex) <= i) {
+						Vertex otherVertex = vertices.get(i);
+						Edge edge = Edge.between(vertex).and(otherVertex);
+						undirectedEdges.add(edge);					
+					}
+				}
+			}			
+		} else {
+			for (int i = 0; i < adjacencyList.size(); i++) {
+				for (Vertex vertex : adjacencyList.get(i)) {
+					Vertex otherVertex = vertices.get(i);
+					Edge edge = Edge.from(vertex).to(otherVertex);
+					undirectedEdges.add(edge);					
+				}
+			}			
+		}
+		
+		return new EdgesGraph(verticesSet, undirectedEdges, directedEdges);
 	}	
 }
