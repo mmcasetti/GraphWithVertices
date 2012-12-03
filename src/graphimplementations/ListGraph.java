@@ -413,6 +413,7 @@ public class ListGraph extends AbstractGraph {
 		Edge edge = Edge.from(start).to(end);
 		Preconditions.checkArgument(getDirectedEdges().contains(edge), 
 				"Edge not in graph.");
+		Preconditions.checkArgument(isDirected(), "UseRemoveUndirectedEdge.");
 		
 		int startIndex = getIndexOf(start);
 
