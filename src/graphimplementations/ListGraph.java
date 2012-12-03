@@ -284,23 +284,23 @@ public class ListGraph extends AbstractGraph {
 		getAdjacencyList().remove(getIndexOf(vertex));
 	}
 
-	// TODO from here 
 	@Override
 	public void addUndirectedEdge(Edge edge) {
-		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
-				&& vertices.contains(edge.getEnd()), 
+		Preconditions.checkArgument(getVertices().contains(edge.getStart()) 
+				&& getVertices().contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(!edge.isDirected(), "Use addDirectedEdge.");
+		Preconditions.checkArgument(!edge.isDirected() && !isDirected(), 
+				"Use addDirectedEdge.");
 		
 		Vertex start = edge.getStart();
 		Vertex end = edge.getEnd();
 		
-		int startIndex = vertices.indexOf(start);
-		int endIndex = vertices.indexOf(end);
+		int startIndex = getIndexOf(start);
+		int endIndex = getIndexOf(end);
 		
-		adjacencyList.get(startIndex).add(end);
+		getAdjacencyList().get(startIndex).add(end);
 		if (!edge.isLoop()) {
-			adjacencyList.get(endIndex).add(start);			
+			getAdjacencyList().get(endIndex).add(start);			
 		}
 	}
 	
@@ -309,77 +309,81 @@ public class ListGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
 				&& vertices.contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(edge.isDirected(), "Use addEdge.");
+		Preconditions.checkArgument(edge.isDirected() && isDirected(), 
+				"Use addUndirectedEdge.");
 		
 		Vertex start = edge.getStart();
 		Vertex end = edge.getEnd();
 		
-		int startIndex = vertices.indexOf(start);
+		int startIndex = getIndexOf(start);
 		
-		adjacencyList.get(startIndex).add(end);
+		getAdjacencyList().get(startIndex).add(end);
 	}
 	
 	@Override
 	public void addUndirectedEdge(Vertex start, Vertex end) {
-		Preconditions.checkArgument(vertices.contains(start) 
-				&& vertices.contains(end), "Edge's endpoints not in graph.");		
+		Preconditions.checkArgument(getVertices().contains(start) 
+				&& getVertices().contains(end), "Edge's endpoints not in graph.");		
+		Preconditions.checkArgument(!isDirected(), "Use addDirectedEdge.");
 
-		int startIndex = vertices.indexOf(start);
-		int endIndex = vertices.indexOf(end);
+		int startIndex = getIndexOf(start);
+		int endIndex = getIndexOf(end);
 		
-		adjacencyList.get(startIndex).add(end);
+		getAdjacencyList().get(startIndex).add(end);
 		if (!start.equals(end)) {
-			adjacencyList.get(endIndex).add(start);			
+			getAdjacencyList().get(endIndex).add(start);			
 		}
 	}
 
 	@Override
 	public void addDirectedEdge(Vertex start, Vertex end) {
-		Preconditions.checkArgument(vertices.contains(start) 
-				&& vertices.contains(end), "Edge's endpoints not in graph.");		
+		Preconditions.checkArgument(getVertices().contains(start) 
+				&& getVertices().contains(end), "Edge's endpoints not in graph.");		
+		Preconditions.checkArgument(isDirected(), 
+				"Use addUndirectedEdge.");
 
-		int startIndex = vertices.indexOf(start);
-		
-		adjacencyList.get(startIndex).add(end);
+		int startIndex = getIndexOf(start);
+		getAdjacencyList().get(startIndex).add(end);		
 	}
 
 	@Override
 	public void removeUndirectedEdge(Edge edge) {
-		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
-				&& vertices.contains(edge.getEnd()), 
+		Preconditions.checkArgument(getVertices().contains(edge.getStart()) 
+				&& getVertices().contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
 		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
 				"Edge not in graph.");
-		Preconditions.checkArgument(!edge.isDirected(), "Use removeDirectedEdge.");
+		Preconditions.checkArgument(!edge.isDirected() && !isDirected(), 
+				"Use removeDirectedEdge.");
 		
 		Vertex start = edge.getStart();
 		Vertex end = edge.getEnd();
-		
-		int startIndex = vertices.indexOf(start);
-		int endIndex = vertices.indexOf(end);
 
-		adjacencyList.get(startIndex).remove(end);
-		
+		int startIndex = getIndexOf(start);
+		int endIndex = getIndexOf(end);
+
+		getAdjacencyList().get(startIndex).remove(end);
 		if (!edge.isLoop()) {
-			adjacencyList.get(endIndex).remove(start);
+			getAdjacencyList().get(endIndex).remove(start);
 		}
 	}
 
 	@Override
 	public void removeDirectedEdge(Edge edge) {
-		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
-				&& vertices.contains(edge.getEnd()), 
+		Preconditions.checkArgument(getVertices().contains(edge.getStart()) 
+				&& getVertices().contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
+		Preconditions.checkArgument(getDirectedEdges().contains(edge), 
 				"Edge not in graph.");
-		Preconditions.checkArgument(edge.isDirected(), "Use removeEdge.");
+		Preconditions.checkArgument(edge.isDirected() && isDirected(), 
+				"Use removeUndirectedEdge.");
 		
 		Vertex start = edge.getStart();
 		Vertex end = edge.getEnd();
 		
-		int startIndex = vertices.indexOf(start);
+		int startIndex = getIndexOf(start);
 
-		adjacencyList.get(startIndex).remove(end);
+		getAdjacencyList().get(startIndex).remove(end);
 	}
 
 	@Override
@@ -390,32 +394,30 @@ public class ListGraph extends AbstractGraph {
 		Edge edge = Edge.between(start).and(end);
 		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
 				"Edge not in graph.");
+		Preconditions.checkArgument(!isDirected(), "Use removeDirectedEdge.");
 		
-		int startIndex = vertices.indexOf(start);
-		int endIndex = vertices.indexOf(end);
+		int startIndex = getIndexOf(start);
+		int endIndex = getIndexOf(end);
 
-		adjacencyList.get(startIndex).remove(end);
-		
+		getAdjacencyList().get(startIndex).remove(end);
 		if (!start.equals(end)) {
-			adjacencyList.get(endIndex).remove(start);
+			getAdjacencyList().get(endIndex).remove(start);
 		}
 	}
 	
 	@Override
 	public void removeDirectedEdge(Vertex start, Vertex end) {
-		Preconditions.checkArgument(vertices.contains(start) 
-				&& vertices.contains(end), 
+		Preconditions.checkArgument(getVertices().contains(start) 
+				&& getVertices().contains(end), 
 				"Edge's endpoints not in graph.");
-		Edge edge = Edge.between(start).and(end);
-		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
+		Edge edge = Edge.from(start).to(end);
+		Preconditions.checkArgument(getDirectedEdges().contains(edge), 
 				"Edge not in graph.");
 		
-		int startIndex = vertices.indexOf(start);
+		int startIndex = getIndexOf(start);
 
-		adjacencyList.get(startIndex).remove(end);
+		getAdjacencyList().get(startIndex).remove(end);
 	}
-
-	// TODO ends
 	
 	public boolean isEulerian() {
 		if (!isDirected()) {
