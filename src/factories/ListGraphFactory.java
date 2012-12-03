@@ -111,7 +111,9 @@ public class ListGraphFactory {
 		if (!isDirected) {
 			for (Edge edge : undirectedEdges) {
 				adjacencyList.get(verticesList.indexOf(edge.getStart())).add(edge.getEnd());
-				adjacencyList.get(verticesList.indexOf(edge.getEnd())).add(edge.getStart());
+				if (!edge.isLoop()) {
+					adjacencyList.get(verticesList.indexOf(edge.getEnd())).add(edge.getStart());					
+				}
 			}			
 		} else {
 			for (Edge edge : directedEdges) {
