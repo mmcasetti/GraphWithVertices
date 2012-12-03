@@ -176,7 +176,7 @@ public class ListGraph extends AbstractGraph {
 
 	@Override
 	public Multiset<Edge> getEdgesAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex), 
+		Preconditions.checkArgument(getVertices().contains(vertex), 
 				"Vertex not in graph.");
 		Preconditions.checkArgument(!isDirected(), 
 				"Use getEdgesFrom and getEdgesTo.");
@@ -192,7 +192,7 @@ public class ListGraph extends AbstractGraph {
 	
 	@Override
 	public Multiset<Edge> getEdgesFrom(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex), 
+		Preconditions.checkArgument(getVertices().contains(vertex), 
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), 
 				"Use getEdgesAt.");
@@ -208,7 +208,7 @@ public class ListGraph extends AbstractGraph {
 	
 	@Override
 	public Multiset<Edge> getEdgesTo(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex), 
+		Preconditions.checkArgument(getVertices().contains(vertex), 
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), 
 				"Use getEdgesAt.");
@@ -225,7 +225,7 @@ public class ListGraph extends AbstractGraph {
 	
 	@Override
 	public int getDegreeAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex), 
+		Preconditions.checkArgument(getVertices().contains(vertex), 
 				"Vertex not in graph.");
 		Preconditions.checkArgument(!isDirected(), 
 				"Use getOutdegreeAt and getIndegreeAt");
@@ -235,7 +235,7 @@ public class ListGraph extends AbstractGraph {
 	
 	@Override
 	public int getOutdegreeAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex), 
+		Preconditions.checkArgument(getVertices().contains(vertex), 
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), 
 				"Use getDegreeAt");
@@ -245,7 +245,7 @@ public class ListGraph extends AbstractGraph {
 		
 	@Override
 	public int getIndegreeAt(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex), 
+		Preconditions.checkArgument(getVertices().contains(vertex), 
 				"Vertex not in graph.");
 		Preconditions.checkArgument(isDirected(), 
 				"Use getDegreeAt");
@@ -257,37 +257,34 @@ public class ListGraph extends AbstractGraph {
 		return indegree;
 	}
 	
-	
-	// TODO from here 
 	@Override
 	public void addVertices(Set<Vertex> newVertices) {
 		for (Vertex v : newVertices) {
-			Preconditions.checkArgument(!vertices.contains(v), 
+			Preconditions.checkArgument(!getVertices().contains(v), 
 					"New vertex already in graph.");
 		}
 		
-		vertices.addAll(newVertices);
+		getListOfVertices().addAll(newVertices);
 		for (int i = 0; i < newVertices.size(); i++) {
 			Multiset<Vertex> multiset = HashMultiset.create();
-			adjacencyList.add(multiset);
+			getAdjacencyList().add(multiset);
 		}
 	}
 
 	@Override
 	public void removeVertex(Vertex vertex) {
-		Preconditions.checkArgument(vertices.contains(vertex), 
+		Preconditions.checkArgument(getVertices().contains(vertex), 
 				"Vertex not in graph.");
 		
-		adjacencyList.remove(vertices.indexOf(vertex));
-		for (int i = 0; i < adjacencyList.size(); i++) {
-			// remove(elment, occurrences)
-			// count(element) - no. of occurrences of element
-			adjacencyList.get(i).remove(vertex, 
-					adjacencyList.get(i).count(vertex));
+		for (int i = 0; i < getAdjacencyList().size(); i++) {
+			getAdjacencyList().get(i).remove(vertex, 
+					getAdjacencyList().get(i).count(vertex));
 		}
-		vertices.remove(vertices.indexOf(vertex));
+		getListOfVertices().remove(getIndexOf(vertex));
+		getAdjacencyList().remove(getIndexOf(vertex));
 	}
 
+	// TODO from here 
 	@Override
 	public void addUndirectedEdge(Edge edge) {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
@@ -418,11 +415,20 @@ public class ListGraph extends AbstractGraph {
 		adjacencyList.get(startIndex).remove(end);
 	}
 
+	// TODO ends
+	
 	public boolean isEulerian() {
-		for (int i = 0; i < getAdjacencyList().size(); i++) {
-			Vertex v = vertices.get(i);
-			if (getDegreeAt(v)%2 != 0 || getIndegreeAt(v) != getOutdegreeAt(v)) {
-				return false;
+		if (!isDirected()) {
+			for (Vertex v : getVertices()) {
+				if (getDegreeAt(v) % 2 != 0) {
+					return false;
+				}
+			}			
+		} else {
+			for (Vertex v : getVertices()) {
+				if (getIndegreeAt(v) != getOutdegreeAt(v)) {
+					return false;
+				}
 			}
 		}
 		return true;
