@@ -174,30 +174,18 @@ public class ListGraph extends AbstractGraph {
 		return new ListGraph(getListOfVertices(), getAdjacencyList(), true);
 	}
 
-	// TODO from here
-	
 	@Override
 	public Multiset<Edge> getEdgesAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+		Preconditions.checkArgument(!isDirected(), 
+				"Use getEdgesFrom and getEdgesTo.");
 		
 		Multiset<Edge> edgesAt = HashMultiset.create();		
-		int indexStart = getIndexOf(vertex);
-		for (Vertex end : adjacencyList.get(indexStart)) {
-			int indexEnd = getIndexOf(end);
-			if (end.equals(vertex) || 
-				adjacencyList.get(indexStart).count(end) == adjacencyList.get(indexEnd).count(vertex)) {
-				for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
-					Edge e = Edge.between(vertex).and(end);
-					edgesAt.add(e);
-				}
-			} else {
-				int m = Math.min(adjacencyList.get(indexStart).count(end), adjacencyList.get(indexEnd).count(vertex));
-				for (int i = 0; i < m; i++) {
-					Edge e = Edge.between(vertex).and(end);
-					edgesAt.add(e);
-				}
-			}
+		int indexOfV = getIndexOf(vertex);
+		for (Vertex otherVertex : getAdjacencyList().get(indexOfV)){
+			Edge edge = Edge.between(vertex).and(otherVertex);
+			edgesAt.add(edge);
 		}
 		return edgesAt;
 	}
@@ -206,36 +194,32 @@ public class ListGraph extends AbstractGraph {
 	public Multiset<Edge> getEdgesFrom(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+		Preconditions.checkArgument(isDirected(), 
+				"Use getEdgesAt.");
 
-		Multiset<Edge> edgesFrom = HashMultiset.create();
-		int indexV = getIndexOf(vertex);
-		for (Vertex w : adjacencyList.get(indexV)) {
-			int indexW = getIndexOf(w);
-			if (!vertex.equals(w) && 
-				adjacencyList.get(indexV).count(w) > adjacencyList.get(indexW).count(vertex)) {
-				int m = adjacencyList.get(indexV).count(w) - adjacencyList.get(indexW).count(vertex);
-				for (int i = 0; i < m; i++) {
-					Edge e = Edge.from(vertex).to(w);
-					edgesFrom.add(e);
-				}
-			}
+		Multiset<Edge> edgesFrom = HashMultiset.create();		
+		int indexOfV = getIndexOf(vertex);
+		for (Vertex otherVertex : getAdjacencyList().get(indexOfV)){
+			Edge edge = Edge.between(vertex).and(otherVertex);
+			edgesFrom.add(edge);
 		}
 		return edgesFrom;
 	}
 	
-	// It's not a good idea to do it using the list 
-	// - we have to read the whole list anyway
-	// with the possible exception of the entry corresponding to the vertex
 	@Override
 	public Multiset<Edge> getEdgesTo(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
+		Preconditions.checkArgument(isDirected(), 
+				"Use getEdgesAt.");
+		
 		Multiset<Edge> edgesTo = HashMultiset.create();
-		for (Edge e : getDirectedEdges()) {
-			if (e.getEnd().equals(vertex)) {
-				edgesTo.add(e);
-			}
+		for (int i = 0; i < getAdjacencyList().size(); i++) {
+			Vertex v = getListOfVertices().get(i);
+			Edge edge = Edge.from(v).to(vertex);
+			edgesTo.add(edge, getAdjacencyList().get(i).count(vertex));
 		}
+		
 		return edgesTo;
 	}
 	
@@ -243,23 +227,38 @@ public class ListGraph extends AbstractGraph {
 	public int getDegreeAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
-		return getEdgesAt(vertex).size();
+		Preconditions.checkArgument(!isDirected(), 
+				"Use getOutdegreeAt and getIndegreeAt");
+		
+		return getAdjacencyList().get(getIndegreeAt(vertex)).size();
 	}
 	
 	@Override
 	public int getOutdegreeAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
-		return getEdgesFrom(vertex).size();
+		Preconditions.checkArgument(isDirected(), 
+				"Use getDegreeAt");
+
+		return getAdjacencyList().get(getIndegreeAt(vertex)).size();
 	}
-	
+		
 	@Override
 	public int getIndegreeAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
 				"Vertex not in graph.");
-		return getEdgesTo(vertex).size();
+		Preconditions.checkArgument(isDirected(), 
+				"Use getDegreeAt");
+
+		int indegree = 0;
+		for (int i = 0; i < getAdjacencyList().size(); i++) {
+			indegree += getAdjacencyList().get(i).count(vertex);
+		}
+		return indegree;
 	}
 	
+	
+	// TODO from here 
 	@Override
 	public void addVertices(Set<Vertex> newVertices) {
 		for (Vertex v : newVertices) {
