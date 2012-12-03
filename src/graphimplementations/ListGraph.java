@@ -2,13 +2,13 @@ package graphimplementations;
 
 import interfaces.Graph;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Sets;
 
@@ -18,23 +18,34 @@ import abstractclasses.AbstractGraph;
  * 
  * @author mmcasetti
  * 
- * A class to implement a multigraph, seen as an adjacency list of multisets. A 
- * list of vertices keeps track of the order of the vertices.
+ * A class to implement a multigraph, seen as an adjacency list of multisets. 
+ * A list of vertices keeps track of the order of the vertices. A boolean 
+ * keeps track of whether the graph is directed or undirected.
  *
  */
 
 public class ListGraph extends AbstractGraph {
 	private List<Vertex> vertices;
 	private List<Multiset<Vertex>> adjacencyList;
+	private boolean isDirected;
 	
-	public ListGraph(List<Vertex> v, List<Multiset<Vertex>> l) {
-		Preconditions.checkArgument(v.size() == l.size(), 
+	public ListGraph(List<Vertex> vertices, List<Multiset<Vertex>> adjacencyList, boolean isDirected) {
+		Preconditions.checkArgument(vertices.size() == adjacencyList.size(), 
 				"Too many or too few vertices");
-		
-		this.vertices = v;
-		this.adjacencyList = l;
+		if (!isDirected) {
+			for (int i = 0; i < adjacencyList.size(); i++) {
+				for (Vertex v : adjacencyList.get(i)) {
+					int indexV = vertices.indexOf(v);
+					Preconditions.checkArgument(adjacencyList.get(i).count(v) == adjacencyList.get(indexV).count(vertices.get(i)));												
+				}
+			}
+		}
+			
+		this.vertices = vertices;
+		this.adjacencyList = adjacencyList;
+		this.isDirected = isDirected;
 	}
-		
+	
 	@Override
 	public boolean equals(Object other) {
 		if (super.equals(other)) {
@@ -48,12 +59,14 @@ public class ListGraph extends AbstractGraph {
 			return otherGraph.equals(this);
 		} else {
 			ListGraph otherListGraph = (ListGraph) other;
-			if (this.vertices.size() != otherListGraph.vertices.size()) {
+			if (otherListGraph.isDirected() != this.isDirected()) {
 				return false;
 			}
-			for (int i = 0; i < this.vertices.size(); i++) {
-				if (this.adjacencyList.get(i) != 
-						otherListGraph.adjacencyList.get(i)) {
+			if (this.getListOfVertices().size() != otherListGraph.getListOfVertices().size()) {
+				return false;
+			}
+			for (int i = 0; i < this.getListOfVertices().size(); i++) {
+				if (!this.getAdjacencyList().get(i).equals(otherListGraph.getAdjacencyList().get(i))) {
 					return false;
 				}
 			}
@@ -75,22 +88,6 @@ public class ListGraph extends AbstractGraph {
 	List<Vertex> getListOfVertices() {
 		return vertices;
 	}
-	
-	@Override
-	public boolean isDirected() {
-		for (int i = 0; i < adjacencyList.size(); i++) {
-			Vertex vertex = vertices.get(i);
-			for (Vertex otherVertex : adjacencyList.get(i)) {
-				if (!otherVertex.equals(vertex)) {
-					int otherIndex = getIndexOf(otherVertex);
-					if (adjacencyList.get(i).count(otherVertex) != adjacencyList.get(otherIndex).count(vertex)) {
-						return false;
-					}					
-				}
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * 	
@@ -98,63 +95,48 @@ public class ListGraph extends AbstractGraph {
 	 * @return its index in the list of vertices of the graph. Private!
 	 */
 	private int getIndexOf(Vertex vertex) {
-			Preconditions.checkArgument(vertices.contains(vertex), 
-					"Vertex not in graph.");		
-			return vertices.indexOf(vertex);
-		}
+		Preconditions.checkArgument(getListOfVertices().contains(vertex), 
+				"Vertex not in graph.");		
+		return getListOfVertices().indexOf(vertex);
+	}
+	
+	@Override
+	public boolean isDirected() {
+		return isDirected;
+	}
 
 	@Override
-	public Multiset<Edge> getEdges() {
+	public Multiset<Edge> getUndirectedEdges() {
+		if (isDirected()) {
+			return HashMultiset.<Edge>create();
+		}
+
 		Multiset<Edge> edges = HashMultiset.create();
-		for (int indexStart = 0; indexStart < adjacencyList.size(); indexStart++) {
-			Vertex start = vertices.get(indexStart);
-			for (Vertex end : adjacencyList.get(indexStart)) {
+		for (int indexStart = 0; indexStart < getAdjacencyList().size(); indexStart++) {
+			Vertex start = getListOfVertices().get(indexStart);
+			for (Vertex end : getAdjacencyList().get(indexStart)) {
 				int indexEnd = getIndexOf(end);
-				if (end.equals(start) || 
-					adjacencyList.get(indexStart).count(end) == adjacencyList.get(indexEnd).count(start)) {
-					if (indexStart <= indexEnd) {
-						for (int i = 0; i < adjacencyList.get(indexStart).count(end); i++) {
-						Edge e = Edge.between(start).and(end);
-						edges.add(e);
-						}
-					}
-				} else {
-					int m = Math.min(adjacencyList.get(indexStart).count(end), adjacencyList.get(indexEnd).count(start));
-					if (indexStart < indexEnd) {
-						for (int i = 0; i < m; i++) {
-							Edge e = Edge.between(start).and(end);
-							edges.add(e);
-						}
-					}
-				}	
+				if (indexStart <= indexEnd) {
+					Edge e = Edge.between(start).and(end);
+					edges.add(e, getAdjacencyList().get(indexStart).count(end));
+				}
 			}
 		}
 		return edges;
 	}
 
-	// TODO wrong - too many edges
 	@Override
 	public Multiset<Edge> getDirectedEdges() {
+		if (!isDirected()) {
+			return HashMultiset.<Edge>create();
+		}
+
 		Multiset<Edge> edges = HashMultiset.create();
-		for (int indexV = 0; indexV < adjacencyList.size(); indexV++) {
-			Vertex v = vertices.get(indexV);
-			for (Vertex w : adjacencyList.get(indexV)) {
-				int indexW = getIndexOf(w);
-				if (!w.equals(v) && 
-					adjacencyList.get(indexV).count(w) != adjacencyList.get(indexW).count(v)) {
-					int noOfDirected = Math.abs(adjacencyList.get(indexV).count(w) - adjacencyList.get(indexW).count(v));
-					if (adjacencyList.get(indexV).count(w) > adjacencyList.get(indexW).count(v)) {
-						for (int i = 0; i < noOfDirected; i++) {
-							Edge e = Edge.from(v).to(w);
-							edges.add(e);
-						}						
-					} else {
-						for (int i = 0; i < noOfDirected; i++) {
-							Edge e = Edge.from(w).to(v);
-							edges.add(e);
-						}
-					}
-				}
+		for (int indexStart = 0; indexStart < getAdjacencyList().size(); indexStart++) {
+			Vertex start = getListOfVertices().get(indexStart);
+			for (Vertex end : getAdjacencyList().get(indexStart)) {
+				Edge e = Edge.from(start).to(end);
+				edges.add(e, getAdjacencyList().get(indexStart).count(end));
 			}
 		}
 		return edges;
@@ -165,6 +147,35 @@ public class ListGraph extends AbstractGraph {
 		return adjacencyList;
 	}	
 
+	@Override
+	public Graph makeUndirected() {
+		if (!isDirected()) {
+			return this;
+		}
+		List<Multiset<Vertex>> undirectedList = Lists.newArrayList();
+		for (int i = 0; i < getAdjacencyList().size(); i++) {
+			Multiset<Vertex> listAtI = HashMultiset.create();
+			undirectedList.add(listAtI);
+			Set<Vertex> setAtI = Sets.newHashSet(getAdjacencyList().get(i));
+			for (Vertex v : setAtI) {
+				int max = Math.max(getAdjacencyList().get(i).count(v), 
+						getAdjacencyList().get(getIndexOf(v)).count(getListOfVertices().get(i)));
+				listAtI.add(v, max);
+			}
+		}
+		return new ListGraph(getListOfVertices(), undirectedList, false);
+	}
+
+	@Override
+	public Graph makeDirected() {
+		if (isDirected()) {
+			return this;
+		}
+		return new ListGraph(getListOfVertices(), getAdjacencyList(), true);
+	}
+
+	// TODO from here
+	
 	@Override
 	public Multiset<Edge> getEdgesAt(Vertex vertex) {
 		Preconditions.checkArgument(vertices.contains(vertex), 
@@ -279,7 +290,7 @@ public class ListGraph extends AbstractGraph {
 	}
 
 	@Override
-	public void addEdge(Edge edge) {
+	public void addUndirectedEdge(Edge edge) {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
 				&& vertices.contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
@@ -313,7 +324,7 @@ public class ListGraph extends AbstractGraph {
 	}
 	
 	@Override
-	public void addEdge(Vertex start, Vertex end) {
+	public void addUndirectedEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
 				&& vertices.contains(end), "Edge's endpoints not in graph.");		
 
@@ -337,11 +348,11 @@ public class ListGraph extends AbstractGraph {
 	}
 
 	@Override
-	public void removeEdge(Edge edge) {
+	public void removeUndirectedEdge(Edge edge) {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
 				&& vertices.contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(getEdges().contains(edge), 
+		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
 				"Edge not in graph.");
 		Preconditions.checkArgument(!edge.isDirected(), "Use removeDirectedEdge.");
 		
@@ -363,7 +374,7 @@ public class ListGraph extends AbstractGraph {
 		Preconditions.checkArgument(vertices.contains(edge.getStart()) 
 				&& vertices.contains(edge.getEnd()), 
 				"Edge's endpoints not in graph.");
-		Preconditions.checkArgument(getEdges().contains(edge), 
+		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
 				"Edge not in graph.");
 		Preconditions.checkArgument(edge.isDirected(), "Use removeEdge.");
 		
@@ -376,12 +387,12 @@ public class ListGraph extends AbstractGraph {
 	}
 
 	@Override
-	public void removeEdge(Vertex start, Vertex end) {
+	public void removeUndirectedEdge(Vertex start, Vertex end) {
 		Preconditions.checkArgument(vertices.contains(start) 
 				&& vertices.contains(end), 
 				"Edge's endpoints not in graph.");
 		Edge edge = Edge.between(start).and(end);
-		Preconditions.checkArgument(getEdges().contains(edge), 
+		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
 				"Edge not in graph.");
 		
 		int startIndex = vertices.indexOf(start);
@@ -400,7 +411,7 @@ public class ListGraph extends AbstractGraph {
 				&& vertices.contains(end), 
 				"Edge's endpoints not in graph.");
 		Edge edge = Edge.between(start).and(end);
-		Preconditions.checkArgument(getEdges().contains(edge), 
+		Preconditions.checkArgument(getUndirectedEdges().contains(edge), 
 				"Edge not in graph.");
 		
 		int startIndex = vertices.indexOf(start);
