@@ -164,6 +164,79 @@ public class GraphTest {
 		assertEquals(graph, graph);
 	}
 
+	// Factories, equals - same graph no matter if given via edges & vertices, matrix, list
+	
+	@Test
+	public void edgesGraph_edges_matrix_factory_true() {
+		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		EdgesGraph graphMatrix = edgesGraphFactory.createEdgesGraph(verticesList, matrix, false);
+		
+		assertEquals(graphEdges, graphMatrix);
+	}
+	
+	@Test
+	public void edgesGraph_edges_list_factory_true() {
+		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		EdgesGraph graphList = edgesGraphFactory.createEdgesGraph(verticesList, list, false);
+		
+		assertEquals(graphEdges, graphList);
+	}
+	
+	@Test
+	public void edgesGraph_matrix_list_factory_true() {
+		EdgesGraph graphMatrix = edgesGraphFactory.createEdgesGraph(verticesList, matrix, false);
+		EdgesGraph graphList = edgesGraphFactory.createEdgesGraph(verticesList, list, false);
+		
+		assertEquals(graphMatrix, graphList);
+	}
+	
+	@Test
+	public void matrixGraph_edges_matrix_factory_true() {
+		MatrixGraph graphEdges = matrixGraphFactory.createMatrixGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix, false);
+		
+		assertEquals(graphEdges, graphMatrix);
+	}
+	
+	@Test
+	public void matrixGraph_edges_list_factory_true() {
+		MatrixGraph graphEdges = matrixGraphFactory.createMatrixGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		MatrixGraph graphList = matrixGraphFactory.createMatrixGraph(verticesList, list, false);
+		
+		assertEquals(graphEdges, graphList);
+	}
+	
+	@Test
+	public void matrixGraph_matrix_list_factory_true() {
+		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix, false);
+		MatrixGraph graphList = matrixGraphFactory.createMatrixGraph(verticesList, list, false);
+		
+		assertEquals(graphMatrix, graphList);
+	}
+	
+	@Test
+	public void listGraph_edges_matrix_factory_true() {
+		ListGraph graphEdges = listGraphFactory.createListGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		ListGraph graphMatrix = listGraphFactory.createListGraph(verticesList, matrix, false);
+	
+		assertEquals(graphEdges, graphMatrix);
+	}
+	
+	@Test
+	public void listGraph_edges_list_factory_true() {
+		ListGraph graphEdges = listGraphFactory.createListGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		ListGraph graphList = listGraphFactory.createListGraph(verticesList, list, false);
+	
+		assertEquals(graphEdges, graphList);
+	}
+	
+	@Test
+	public void listGraph_matrix_list_factory_true() {
+		ListGraph graphMatrix = listGraphFactory.createListGraph(verticesList, matrix, false);
+		ListGraph graphList = listGraphFactory.createListGraph(verticesList, list, false);
+	
+		assertEquals(graphMatrix, graphList);
+	}
 	
 	// EdgesGraph
 	
