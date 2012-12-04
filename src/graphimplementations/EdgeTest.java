@@ -2,23 +2,15 @@ package graphimplementations;
 
 import static org.junit.Assert.*;
 
-import java.util.Set;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.experimental.theories.DataPoints;
+import org.junit.experimental.theories.Theories;
 import org.junit.experimental.theories.Theory;
-
-import com.google.common.collect.Sets;
-//import org.junit.experimental.theories.DataPoints;
-//import org.junit.experimental.theories.Theories;
-//import org.junit.experimental.theories.Theory;
-//import org.junit.runner.RunWith;
+import org.junit.runner.RunWith;
 
 import graphimplementations.Edge;
-import graphimplementations.EdgesGraph;
 import graphimplementations.Vertex;
 
+@RunWith(Theories.class)
 public class EdgeTest {
 	@DataPoints
 	public static Vertex[] VERTICES = { new Vertex(), new Vertex(), new Vertex() };
@@ -35,8 +27,10 @@ public class EdgeTest {
 	public void directedInverse_notEqual(Vertex v, Vertex w) {
 		Edge oneWay = Edge.from(v).to(w);
 		Edge otherWay = Edge.from(w).to(v);
-		
-		assertFalse(oneWay.equals(otherWay));
+
+		if (v != w) {
+			assertFalse(oneWay.equals(otherWay));			
+		}
 	}
 	
 	@Theory
