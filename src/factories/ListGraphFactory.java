@@ -103,8 +103,8 @@ public class ListGraphFactory {
 		
 		boolean isDirected = undirectedEdges.isEmpty();
 		
-		ArrayList<Multiset<Vertex>> adjacencyList = Lists.newArrayList();
-		for (int i = 0; i < adjacencyList.size(); i++) {
+		List<Multiset<Vertex>> adjacencyList = Lists.newArrayList();
+		for (int i = 0; i < verticesList.size(); i++) {
 			Multiset<Vertex> multiset = HashMultiset.create();
 			adjacencyList.add(multiset);
 		}
