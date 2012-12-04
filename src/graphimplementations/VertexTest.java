@@ -89,42 +89,15 @@ public class VertexTest {
     public void getIndegree_zeroInUndirectedGraph() {
     	assertEquals(0, v1.getIndegree());
     }
+    
+    @Test
+    public void getOutdegree_zeroUndirectedGraph() {
+    	assertEquals(0, v1.getOutdegree());
+    }
+    
+    // directed edges give no degree
+    @Test
+    public void getDegree_zeroDirectedGraph() {
+    	assertEquals(0, v4.getDegree());
+    }
 }
-
-//public class VertexTest {
-//	static Vertex v1 = new Vertex();
-//	static Vertex v2 = new Vertex();
-//	
-//	@Test
-//	public void testConstructorLabel1() {		
-//		assertTrue(v1.getLabel() == 1);
-//	}
-//	
-//	@Test
-//	public void testConstructorLabel2() {
-//		assertTrue(v2.getLabel() == 2);
-//	}
-//
-//	@Test
-//	public void testGetNoOfVertices() {
-//		assertTrue(Vertex.getNoOfVertices() == 2);
-//	}
-//
-//	@Test
-//	public void testConstructorEdgesAt() {
-//		Multiset<Edge> edges = HashMultiset.create();
-//		Vertex v3 = new Vertex(edges);
-//		edges.add(new Edge(v1, v3));
-//		edges.add(new Edge(v2, v3));
-//		
-//		assertTrue(v3.getEdgesAt().equals(edges));
-//	}
-//
-//	@Test
-//	public void testResetLabel() {
-//		Vertex.resetLabel();
-//		Vertex v = new Vertex();
-//		assertTrue(v.getLabel() == 1);
-//	}
-//
-//}
