@@ -22,7 +22,7 @@ public class Edge implements EdgeInterface {
 		}
 		
 		public Edge and(Vertex end) {
-			Edge e = new Edge(start, end);
+			Edge e = new Edge(start, end, false);
 			start.addEdge(e);
 			if (!start.equals(end)) {
 				end.addEdge(e);				
@@ -51,10 +51,6 @@ public class Edge implements EdgeInterface {
 	private final Vertex start;
 	private final Vertex end;
 	private final boolean isDirected;	
-	
-	private Edge(Vertex i, Vertex j) {
-		this(i, j, false);
-	}
 	
 	private Edge(Vertex i, Vertex j, boolean dir) {
 		this.start = i;
