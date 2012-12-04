@@ -15,7 +15,7 @@ import graphimplementations.Vertex;
 
 public class ListGraphFactory {
 	
-	public ListGraph createListGraph(List<Vertex> vertices, ArrayList<Multiset<Vertex>> adjacencyList, boolean isDirected) {
+	public ListGraph createListGraph(List<Vertex> vertices, List<Multiset<Vertex>> adjacencyList, boolean isDirected) {
 		Preconditions.checkArgument(vertices.size() == adjacencyList.size(),
 				"Too many or too few vertices");
 		if (!isDirected) {

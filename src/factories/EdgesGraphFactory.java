@@ -1,6 +1,5 @@
 package factories;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -125,7 +124,7 @@ public class EdgesGraphFactory {
 		return new EdgesGraph(verticesSet, undirectedEdges, directedEdges);
 	}
 
-	public EdgesGraph createEdgesGraph(List<Vertex> vertices, ArrayList<Multiset<Vertex>> adjacencyList, boolean isDirected) {
+	public EdgesGraph createEdgesGraph(List<Vertex> vertices, List<Multiset<Vertex>> adjacencyList, boolean isDirected) {
 		Preconditions.checkArgument(vertices.size() == adjacencyList.size(),
 				"Too many or too few vertices");
 		if (!isDirected) {

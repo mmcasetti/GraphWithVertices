@@ -8,7 +8,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -102,7 +101,7 @@ public class MatrixGraphFactory {
 		return new MatrixGraph(listOfVertices, matrix, isDirected);
 	}
 
-	public MatrixGraph createMatrixGraph(List<Vertex> vertices, ArrayList<Multiset<Vertex>> adjacencyList, boolean isDirected) {
+	public MatrixGraph createMatrixGraph(List<Vertex> vertices, List<Multiset<Vertex>> adjacencyList, boolean isDirected) {
 		Preconditions.checkArgument(vertices.size() == adjacencyList.size(),
 				"Too many or too few vertices");
 		if (!isDirected) {
