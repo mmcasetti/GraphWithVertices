@@ -105,7 +105,7 @@ public class EdgesGraph extends AbstractGraph {
 		}
 		
 		Multiset<Edge> edges = HashMultiset.create();
-		for (Edge d : directedEdges) {
+		for (Edge d : getDirectedEdges()) {
 			Edge e = Edge.between(d.getStart()).and(d.getEnd());
 			edges.add(e);
 		}
@@ -120,11 +120,11 @@ public class EdgesGraph extends AbstractGraph {
 		}
 		
 		Multiset<Edge> directed = HashMultiset.create();
-		for (Edge e : undirectedEdges) {
+		for (Edge e : getUndirectedEdges()) {
 			Edge d1 = Edge.from(e.getStart()).to(e.getEnd());
-			undirectedEdges.add(d1);
+			directed.add(d1);
 			Edge d2 = Edge.from(e.getEnd()).to(e.getStart());
-			undirectedEdges.add(d2);
+			directed.add(d2);
 		}
 		Multiset<Edge> edges = HashMultiset.create();		
 		return new EdgesGraph(getVertices(), edges, directed);

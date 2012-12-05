@@ -32,20 +32,46 @@ public class GraphTest {
 	public Edge e2u = Edge.between(v2).and(v3);
 	public Edge e3u = Edge.between(v3).and(v1);
 	public Edge undirectedLoop = Edge.between(v1).and(v1);
-	public Multiset<Edge> edges = HashMultiset.create();
+	public Multiset<Edge> undirectedEdges = HashMultiset.create();
 	@Before
-	public void initializeEdges() {
-		edges.add(e1u);
-		edges.add(e1u);
-		edges.add(e2u);
-		edges.add(e3u);
-		edges.add(undirectedLoop);
+	public void initializeUndirectedEdges() {
+		undirectedEdges.add(e1u);
+		undirectedEdges.add(e1u);
+		undirectedEdges.add(e2u);
+		undirectedEdges.add(e3u);
+		undirectedEdges.add(undirectedLoop);
 	}
 	
 	public Edge e1d = Edge.from(v1).to(v2);
 	public Edge e2d = Edge.from(v2).to(v3);
 	public Edge e3d = Edge.from(v3).to(v1);
 	public Edge directedLoop = Edge.from(v1).to(v1);
+	public Multiset<Edge> directedEdges1 = HashMultiset.create();
+	@Before
+	public void initializeDirectedEdges1() {
+		directedEdges1.add(e1d);
+		directedEdges1.add(e1d);
+		directedEdges1.add(e2d);
+		directedEdges1.add(e3d);
+		directedEdges1.add(directedLoop);
+	}	
+	public Edge e1dOpposite = Edge.from(v2).to(v1);
+	public Edge e2dOpposite = Edge.from(v3).to(v2);
+	public Edge e3dOpposite = Edge.from(v1).to(v3);
+	public Multiset<Edge> directedEdges2 = HashMultiset.create();
+	@Before
+	public void initializeDirectedEdges2() {
+		directedEdges2.add(e1d);
+		directedEdges2.add(e1d);
+		directedEdges2.add(e1dOpposite);
+		directedEdges2.add(e1dOpposite);
+		directedEdges2.add(e2d);
+		directedEdges2.add(e2dOpposite);
+		directedEdges2.add(e3d);
+		directedEdges2.add(e3dOpposite);
+		directedEdges2.add(directedLoop);
+		directedEdges2.add(directedLoop);
+	}
 	
 	public int[][] matrix = {{ 1, 2, 1 },
 							 { 2, 0, 1 },
@@ -78,21 +104,21 @@ public class GraphTest {
 	
 	@Test
 	public void edgesGraph_edges_factory_true() {
-		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 
 		assertEquals(graph, graph);
 	}
 	
 	@Test
 	public void matrixGraph_edges_factory_true() {
-		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 
 		assertEquals(graph, graph);
 	}
 	
 	@Test
 	public void listGraph_edges_factory_true() {
-		ListGraph graph = listGraphFactory.createListGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		ListGraph graph = listGraphFactory.createListGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 
 		assertEquals(graph, graph);
 	}
@@ -164,7 +190,7 @@ public class GraphTest {
 	
 	@Test
 	public void edgesGraph_edges_matrix_factory_true() {
-		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 		EdgesGraph graphMatrix = edgesGraphFactory.createEdgesGraph(verticesList, matrix, false);
 		
 		assertEquals(graphEdges, graphMatrix);
@@ -172,7 +198,7 @@ public class GraphTest {
 	
 	@Test
 	public void edgesGraph_edges_list_factory_true() {
-		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 		EdgesGraph graphList = edgesGraphFactory.createEdgesGraph(verticesList, list, false);
 		
 		assertEquals(graphEdges, graphList);
@@ -188,7 +214,7 @@ public class GraphTest {
 	
 	@Test
 	public void matrixGraph_edges_matrix_factory_true() {
-		MatrixGraph graphEdges = matrixGraphFactory.createMatrixGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		MatrixGraph graphEdges = matrixGraphFactory.createMatrixGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix, false);
 		
 		assertEquals(graphEdges, graphMatrix);
@@ -196,7 +222,7 @@ public class GraphTest {
 	
 	@Test
 	public void matrixGraph_edges_list_factory_true() {
-		MatrixGraph graphEdges = matrixGraphFactory.createMatrixGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		MatrixGraph graphEdges = matrixGraphFactory.createMatrixGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 		MatrixGraph graphList = matrixGraphFactory.createMatrixGraph(verticesList, list, false);
 		
 		assertEquals(graphEdges, graphList);
@@ -212,7 +238,7 @@ public class GraphTest {
 	
 	@Test
 	public void listGraph_edges_matrix_factory_true() {
-		ListGraph graphEdges = listGraphFactory.createListGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		ListGraph graphEdges = listGraphFactory.createListGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 		ListGraph graphMatrix = listGraphFactory.createListGraph(verticesList, matrix, false);
 	
 		assertEquals(graphEdges, graphMatrix);
@@ -220,7 +246,7 @@ public class GraphTest {
 	
 	@Test
 	public void listGraph_edges_list_factory_true() {
-		ListGraph graphEdges = listGraphFactory.createListGraph(verticesSet, edges, HashMultiset.<Edge>create());
+		ListGraph graphEdges = listGraphFactory.createListGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 		ListGraph graphList = listGraphFactory.createListGraph(verticesList, list, false);
 	
 		assertEquals(graphEdges, graphList);
@@ -236,7 +262,21 @@ public class GraphTest {
 	
 	// EdgesGraph
 	
+	@Test
+	public void edgesGraph_makeUndirected_true() {
+		EdgesGraph directed = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges1);
+		EdgesGraph undirected = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 	
+		assertEquals(undirected, directed.makeUndirected());
+	}
+	
+	@Test
+	public void edgesGraph_makeDirected_true() {
+		EdgesGraph undirected = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
+		EdgesGraph directed = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges2);
+	
+		assertEquals(undirected.makeDirected(), directed);
+	}
 	
 	// MatrixGraph
 	
