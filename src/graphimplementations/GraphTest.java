@@ -73,9 +73,12 @@ public class GraphTest {
 		directedEdges2.add(directedLoop);
 	}
 	
-	public int[][] matrix = {{ 1, 2, 1 },
-							 { 2, 0, 1 },
-							 { 1, 1, 0 }};
+	public int[][] matrix1 = {{ 1, 2, 1 },
+							  { 2, 0, 1 },
+							  { 1, 1, 0 }};
+	public int[][] matrix2 = {{ 2, 4, 2 },
+			 				  { 4, 0, 2 },
+			 				  { 2, 2, 0 }};
 	
 	public List<Multiset<Vertex>> list = Lists.newArrayList();
 	@Before
@@ -110,8 +113,22 @@ public class GraphTest {
 	}
 	
 	@Test
+	public void edgesGraph_edges_directed_factory_true() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges1);
+
+		assertEquals(graph, graph);
+	}
+	
+	@Test
 	public void matrixGraph_edges_factory_true() {
 		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
+
+		assertEquals(graph, graph);
+	}
+	
+	@Test
+	public void matrixGraph_edges_directed_factory_true() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges1);
 
 		assertEquals(graph, graph);
 	}
@@ -124,43 +141,92 @@ public class GraphTest {
 	}
 	
 	@Test
-	public void edgesGraph_matrix1_factory_true() {		
-		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(matrix, false);
+	public void listGraph_edges_directed_factory_true() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
+
+		assertEquals(graph, graph);
+	}
+	
+	@Test
+	public void edgesGraph_matrix_1_factory_true() {		
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(matrix1, false);
 
 		assertEquals(graph, graph);
 	}
 		
 	@Test
-	public void edgesGraph_matrix2_factory_true() {		
-		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesList, matrix, false);
+	public void edgesGraph_matrix_1_directed_factory_true() {		
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(matrix1, true);
+
+		assertEquals(graph, graph);
+	}
+		
+	@Test
+	public void edgesGraph_matrix_2_factory_true() {		
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesList, matrix1, false);
 
 		assertEquals(graph, graph);
 	}
 	
 	@Test
-	public void matrixGraph_matrix1_factory_true() {		
-		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(matrix, false);
-
-		assertEquals(graph, graph);
-	}
-
-	@Test
-	public void matrixGraph_matrix2_factory_true() {		
-		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix, false);
+	public void edgesGraph_matrix_2_directed_factory_true() {		
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesList, matrix1, true);
 
 		assertEquals(graph, graph);
 	}
 	
 	@Test
-	public void listGraph_matrix1_factory_true() {		
-		ListGraph graph = listGraphFactory.createListGraph(matrix, false);
+	public void matrixGraph_matrix_1_factory_true() {		
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(matrix1, false);
+
+		assertEquals(graph, graph);
+	}
+
+	@Test
+	public void matrixGraph_matrix_1_directed_factory_true() {		
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(matrix1, true);
+
+		assertEquals(graph, graph);
+	}
+
+	@Test
+	public void matrixGraph_matrix_2_factory_true() {		
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
 
 		assertEquals(graph, graph);
 	}
 	
 	@Test
-	public void listGraph_matrix2_factory_true() {		
-		ListGraph graph = listGraphFactory.createListGraph(verticesList, matrix, false);
+	public void matrixGraph_matrix_2_directed_factory_true() {		
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+
+		assertEquals(graph, graph);
+	}
+	
+	@Test
+	public void listGraph_matrix_1_factory_true() {		
+		ListGraph graph = listGraphFactory.createListGraph(matrix1, false);
+
+		assertEquals(graph, graph);
+	}
+	
+	@Test
+	public void listGraph_matrix_1_directed_factory_true() {		
+		ListGraph graph = listGraphFactory.createListGraph(matrix1, true);
+
+		assertEquals(graph, graph);
+	}
+	
+	@Test
+	public void listGraph_matrix_2_factory_true() {		
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, matrix1, false);
+
+		assertEquals(graph, graph);
+	}
+	
+	@Test
+	public void listGraph_matrix_2_directed_factory_true() {		
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, matrix1, true);
 
 		assertEquals(graph, graph);
 	}
@@ -173,8 +239,22 @@ public class GraphTest {
 	}
 
 	@Test
+	public void edgesGraph_list_directed_factory_true() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesList, list, true);
+		
+		assertEquals(graph, graph);
+	}
+
+	@Test
 	public void matrixGraph_list_factory_true() {
 		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, list, false);
+		
+		assertEquals(graph, graph);
+	}
+
+	@Test
+	public void matrixGraph_list_directed_factory_true() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, list, true);
 		
 		assertEquals(graph, graph);
 	}
@@ -186,12 +266,19 @@ public class GraphTest {
 		assertEquals(graph, graph);
 	}
 
+	@Test
+	public void listGraph_list_directed_factory_true() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list, true);
+		
+		assertEquals(graph, graph);
+	}
+
 	// Factories, equals - same graph no matter if given via edges & vertices, matrix, list
 	
 	@Test
 	public void edgesGraph_edges_matrix_factory_true() {
 		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
-		EdgesGraph graphMatrix = edgesGraphFactory.createEdgesGraph(verticesList, matrix, false);
+		EdgesGraph graphMatrix = edgesGraphFactory.createEdgesGraph(verticesList, matrix1, false);
 		
 		assertEquals(graphEdges, graphMatrix);
 	}
@@ -206,7 +293,7 @@ public class GraphTest {
 	
 	@Test
 	public void edgesGraph_matrix_list_factory_true() {
-		EdgesGraph graphMatrix = edgesGraphFactory.createEdgesGraph(verticesList, matrix, false);
+		EdgesGraph graphMatrix = edgesGraphFactory.createEdgesGraph(verticesList, matrix1, false);
 		EdgesGraph graphList = edgesGraphFactory.createEdgesGraph(verticesList, list, false);
 		
 		assertEquals(graphMatrix, graphList);
@@ -215,7 +302,7 @@ public class GraphTest {
 	@Test
 	public void matrixGraph_edges_matrix_factory_true() {
 		MatrixGraph graphEdges = matrixGraphFactory.createMatrixGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
-		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix, false);
+		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
 		
 		assertEquals(graphEdges, graphMatrix);
 	}
@@ -230,7 +317,7 @@ public class GraphTest {
 	
 	@Test
 	public void matrixGraph_matrix_list_factory_true() {
-		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix, false);
+		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
 		MatrixGraph graphList = matrixGraphFactory.createMatrixGraph(verticesList, list, false);
 		
 		assertEquals(graphMatrix, graphList);
@@ -239,7 +326,7 @@ public class GraphTest {
 	@Test
 	public void listGraph_edges_matrix_factory_true() {
 		ListGraph graphEdges = listGraphFactory.createListGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
-		ListGraph graphMatrix = listGraphFactory.createListGraph(verticesList, matrix, false);
+		ListGraph graphMatrix = listGraphFactory.createListGraph(verticesList, matrix1, false);
 	
 		assertEquals(graphEdges, graphMatrix);
 	}
@@ -254,7 +341,7 @@ public class GraphTest {
 	
 	@Test
 	public void listGraph_matrix_list_factory_true() {
-		ListGraph graphMatrix = listGraphFactory.createListGraph(verticesList, matrix, false);
+		ListGraph graphMatrix = listGraphFactory.createListGraph(verticesList, matrix1, false);
 		ListGraph graphList = listGraphFactory.createListGraph(verticesList, list, false);
 	
 		assertEquals(graphMatrix, graphList);
@@ -279,6 +366,22 @@ public class GraphTest {
 	}
 	
 	// MatrixGraph
+	
+	@Test
+	public void matrixGraph_makeUndirected_true() {
+		MatrixGraph directed = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+		MatrixGraph undirected = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
+	
+		assertEquals(undirected, directed.makeUndirected());
+	}
+	
+	@Test
+	public void matrixGraph_makeDirected_true() {
+		MatrixGraph undirected = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
+		MatrixGraph directed = matrixGraphFactory.createMatrixGraph(verticesList, matrix2, true);
+	
+		assertEquals(undirected.makeDirected(), directed);
+	}
 	
 	// ListGraph
 	

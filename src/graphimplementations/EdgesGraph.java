@@ -40,21 +40,21 @@ public class EdgesGraph extends AbstractGraph {
 	public EdgesGraph(Set<Vertex> vertices, Multiset<Edge> undirectedEdges, Multiset<Edge> directedEdges) {
 		if (!undirectedEdges.isEmpty()) {
 			Preconditions.checkArgument(directedEdges.isEmpty(), "Choose between directed and undirected graph.");
+			for (Edge edge : undirectedEdges) {
+				Preconditions.checkArgument(
+						vertices.contains(edge.getStart()) && vertices.contains(edge.getEnd()),
+						"Endpoints of edges not in vertices");
+				Preconditions.checkArgument(!edge.isDirected(), "Directed edge in undirected edges");
+			}
 		}
 		if (!directedEdges.isEmpty()) {
 			Preconditions.checkArgument(undirectedEdges.isEmpty(), "Choose between directed and undirected graph.");
-		}
-		for (Edge edge : undirectedEdges) {
-			Preconditions.checkArgument(
-					vertices.contains(edge.getStart()) && vertices.contains(edge.getEnd()),
-					"Endpoints of edges not in vertices");
-			Preconditions.checkArgument(!edge.isDirected(), "Directed edge in undirected edges");
-		}
-		for (Edge edge : directedEdges) {
-			Preconditions.checkArgument(
-					vertices.contains(edge.getStart()) && vertices.contains(edge.getEnd()),
-					"Endpoints of edges not in vertices");
-			Preconditions.checkArgument(edge.isDirected(), "Undirected edge in directed edges");
+			for (Edge edge : directedEdges) {
+				Preconditions.checkArgument(
+						vertices.contains(edge.getStart()) && vertices.contains(edge.getEnd()),
+						"Endpoints of edges not in vertices");
+				Preconditions.checkArgument(edge.isDirected(), "Undirected edge in directed edges");
+			}
 		}
 		
 		this.vertices = vertices;

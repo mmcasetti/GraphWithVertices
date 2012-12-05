@@ -76,9 +76,11 @@ public class EdgesGraphFactory {
 			}
 		} else {
 			for (int i = 0; i < matrix.length; i++) {
+				Edge loop = Edge.from(vertices.get(i)).to(vertices.get(i));
+				directedEdges.add(loop, matrix[i][i]);
 				for (int j = 0; j < matrix.length; j++) {
 					Edge edge = Edge.from(vertices.get(i)).to(vertices.get(j));
-					undirectedEdges.add(edge, matrix[i][j]);
+					directedEdges.add(edge, matrix[i][j]);
 				}
 			}
 		}
@@ -114,9 +116,11 @@ public class EdgesGraphFactory {
 			}
 		} else {
 			for (int i = 0; i < matrix.length; i++) {
+				Edge loop = Edge.from(vertices.get(i)).to(vertices.get(i));
+				directedEdges.add(loop, matrix[i][i]);
 				for (int j = 0; j < matrix.length; j++) {
 					Edge edge = Edge.from(vertices.get(i)).to(vertices.get(j));
-					undirectedEdges.add(edge, matrix[i][j]);
+					directedEdges.add(edge, matrix[i][j]);
 				}
 			}
 		}
@@ -156,7 +160,7 @@ public class EdgesGraphFactory {
 				for (Vertex vertex : adjacencyList.get(i)) {
 					Vertex otherVertex = vertices.get(i);
 					Edge edge = Edge.from(vertex).to(otherVertex);
-					undirectedEdges.add(edge);					
+					directedEdges.add(edge);					
 				}
 			}			
 		}
