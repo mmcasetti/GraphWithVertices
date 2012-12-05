@@ -53,8 +53,8 @@ public class GraphTest {
 	public Edge e3d = Edge.from(v3).to(v1);
 	public Edge directedLoop = Edge.from(v1).to(v1);
 	
-	public int[][] matrix = {{ 1, 1, 1 },
-							 { 1, 0, 1 },
+	public int[][] matrix = {{ 1, 2, 1 },
+							 { 2, 0, 1 },
 							 { 1, 1, 0 }};
 	
 	public List<Multiset<Vertex>> list = Lists.newArrayList();
@@ -63,9 +63,11 @@ public class GraphTest {
 		Multiset<Vertex> multiset1 = HashMultiset.create();
 		multiset1.add(v1);
 		multiset1.add(v2);
+		multiset1.add(v2);
 		multiset1.add(v3);
 		list.add(multiset1);
 		Multiset<Vertex> multiset2 = HashMultiset.create();
+		multiset2.add(v1);
 		multiset2.add(v1);
 		multiset2.add(v3);
 		list.add(multiset2);
