@@ -152,18 +152,7 @@ public class ListGraph extends AbstractGraph {
 		if (!isDirected()) {
 			return this;
 		}
-		List<Multiset<Vertex>> undirectedList = Lists.newArrayList();
-		for (int i = 0; i < getAdjacencyList().size(); i++) {
-			Multiset<Vertex> listAtI = HashMultiset.create();
-			undirectedList.add(listAtI);
-			Set<Vertex> setAtI = Sets.newHashSet(getAdjacencyList().get(i));
-			for (Vertex v : setAtI) {
-				int max = Math.max(getAdjacencyList().get(i).count(v), 
-						getAdjacencyList().get(getIndexOf(v)).count(getListOfVertices().get(i)));
-				listAtI.add(v, max);
-			}
-		}
-		return new ListGraph(getListOfVertices(), undirectedList, false);
+		return new ListGraph(getListOfVertices(), getAdjacencyList(), false);
 	}
 
 	@Override
@@ -171,7 +160,12 @@ public class ListGraph extends AbstractGraph {
 		if (isDirected()) {
 			return this;
 		}
-		return new ListGraph(getListOfVertices(), getAdjacencyList(), true);
+		List<Multiset<Vertex>> directedList = Lists.newArrayList(getAdjacencyList());
+		// we have to duplicate the loops - the rest of the list is the same
+		for (int i = 0; i < getAdjacencyList().size(); i++) {
+			directedList.get(i).add(getListOfVertices().get(i), getAdjacencyList().get(i).count(getListOfVertices().get(i)));
+		}
+		return new ListGraph(getListOfVertices(), directedList, true);
 	}
 
 	@Override
