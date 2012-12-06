@@ -173,15 +173,7 @@ public class MatrixGraph extends AbstractGraph {
 		if (!isDirected()) {
 			return this;
 		}
-		int[][] newMatrix = new int[getMatrix().length][getMatrix().length];
-		for (int i = 0; i < newMatrix.length; i++) {
-			newMatrix[i][i] = getMatrix()[i][i];
-			for (int j = 0; j < i; j++) {
-				newMatrix[i][j] = getMatrix()[i][j] + getMatrix()[j][i];
-				newMatrix[j][i] = newMatrix[i][j];
-			}
-		}
-		return new MatrixGraph(getListOfVertices(), newMatrix, false);
+		return new MatrixGraph(getListOfVertices(), getMatrix(), false);
 	}
 
 	@Override
@@ -189,7 +181,15 @@ public class MatrixGraph extends AbstractGraph {
 		if (isDirected()) {
 			return this;
 		}
-		return new MatrixGraph(getListOfVertices(), getMatrix(), true);
+		int[][] newMatrix = new int[getMatrix().length][getMatrix().length];
+		for (int i = 0; i < newMatrix.length; i++) {
+			newMatrix[i][i] = getMatrix()[i][i] * 2;
+			for (int j = 0; j < i; j++) {
+				newMatrix[i][j] = getMatrix()[i][j] + getMatrix()[j][i];
+				newMatrix[j][i] = newMatrix[i][j];
+			}
+		}
+		return new MatrixGraph(getListOfVertices(), newMatrix, true);
 	}
 
 	@Override

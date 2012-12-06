@@ -362,7 +362,7 @@ public class GraphTest {
 		EdgesGraph undirected = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
 		EdgesGraph directed = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges2);
 	
-		assertEquals(undirected.makeDirected(), directed);
+		assertEquals(directed, undirected.makeDirected());
 	}
 	
 	// MatrixGraph
@@ -380,7 +380,7 @@ public class GraphTest {
 		MatrixGraph undirected = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
 		MatrixGraph directed = matrixGraphFactory.createMatrixGraph(verticesList, matrix2, true);
 	
-		assertEquals(undirected.makeDirected(), directed);
+		assertEquals(directed, undirected.makeDirected());
 	}
 	
 	// ListGraph
