@@ -72,6 +72,19 @@ public class GraphTest {
 		directedEdges2.add(directedLoop);
 		directedEdges2.add(directedLoop);
 	}
+	public Multiset<Edge> directedEdges3 = HashMultiset.create();
+	@Before
+	public void initializeDirectedEdges3() {
+		directedEdges3.add(e1d);
+		directedEdges3.add(e1d);
+		directedEdges3.add(e1dOpposite);
+		directedEdges3.add(e1dOpposite);
+		directedEdges3.add(e2d);
+		directedEdges3.add(e2dOpposite);
+		directedEdges3.add(e3d);
+		directedEdges3.add(e3dOpposite);
+		directedEdges3.add(directedLoop);
+	}
 	
 	public int[][] matrix1 = {{ 1, 2, 1 },
 							  { 2, 0, 1 },
@@ -369,7 +382,7 @@ public class GraphTest {
 	}	
 	
 	// equals - same graph no matter if EdgesGraph, MatrixGraph, ListGraph
-	
+	// undirected
 	@Test
 	public void abstractGraph_edges_matrix_equals_true() {
 		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
@@ -394,6 +407,32 @@ public class GraphTest {
 		assertEquals(graphMatrix, graphList);
 	}
 	
+	// directed
+	@Test
+	public void abstractGraph_edges_matrix_directed_equals_true() {
+		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges3);
+		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+	
+		assertEquals(graphEdges, graphMatrix);
+	}
+	
+	@Test
+	public void abstractGraph_edges_list_directed_equals_true() {
+		EdgesGraph graphEdges = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges3);
+		ListGraph graphList = listGraphFactory.createListGraph(verticesList, list1, true);
+	
+		assertEquals(graphEdges, graphList);
+	}
+	
+	@Test
+	public void abstractGraph_matrix_list_directed_equals_true() {
+		MatrixGraph graphMatrix = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+		ListGraph graphList = listGraphFactory.createListGraph(verticesList, list1, true);
+	
+		assertEquals(graphMatrix, graphList);
+	}
+	
+	// makeUndirected, makeDirected
 	// EdgesGraph 
 	
 	@Test
@@ -448,4 +487,15 @@ public class GraphTest {
 		assertEquals(directed.getDirectedEdges().size(), undirected.makeDirected().getDirectedEdges().size());
 	}
 	
+	// getEdgesAt/From/To; getDegree/Out/In
+	
+	// add/removeVertex
+	
+	// add/removeEdge
+	
+	// isEulerian
+	
+	// isPerfectMatching (edgesgraph, matrixgraph)
+	
+	// getCycle, mergeTours, getEulerianCycle (edgesgraph)
 }

@@ -57,12 +57,17 @@ public class ListGraph extends AbstractGraph {
 		if (!(other instanceof ListGraph)) {
 			AbstractGraph otherGraph = (AbstractGraph) other;
 			return otherGraph.equals(this);
+//			return (otherGraph.isDirected() == this.isDirected() && 
+//					otherGraph.getVertices().equals(this.getVertices()) &&
+//					otherGraph.getUndirectedEdges().equals(this.getUndirectedEdges()) && 
+//					otherGraph.getDirectedEdges().equals(this.getDirectedEdges()));
 		} else {
 			ListGraph otherListGraph = (ListGraph) other;
 			if (otherListGraph.isDirected() != this.isDirected()) {
 				return false;
 			}
-			if (this.getListOfVertices().size() != otherListGraph.getListOfVertices().size()) {
+			if (this.getListOfVertices().size() != otherListGraph.getListOfVertices().size()
+				|| this.getAdjacencyList().size() != otherListGraph.getAdjacencyList().size()) {
 				return false;
 			}
 			for (int i = 0; i < this.getListOfVertices().size(); i++) {
@@ -118,7 +123,7 @@ public class ListGraph extends AbstractGraph {
 				int indexEnd = getIndexOf(end);
 				if (indexStart <= indexEnd) {
 					Edge e = Edge.between(start).and(end);
-					edges.add(e, getAdjacencyList().get(indexStart).count(end));
+					edges.add(e);
 				}
 			}
 		}
@@ -136,7 +141,7 @@ public class ListGraph extends AbstractGraph {
 			Vertex start = getListOfVertices().get(indexStart);
 			for (Vertex end : getAdjacencyList().get(indexStart)) {
 				Edge e = Edge.from(start).to(end);
-				edges.add(e, getAdjacencyList().get(indexStart).count(end));
+				edges.add(e);
 			}
 		}
 		return edges;

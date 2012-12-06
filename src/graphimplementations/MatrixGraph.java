@@ -161,6 +161,10 @@ public class MatrixGraph extends AbstractGraph {
 		if (!(other instanceof MatrixGraph)) {
 			AbstractGraph otherGraph = (AbstractGraph) other;
 			return otherGraph.equals(this);
+//			return (otherGraph.isDirected() == this.isDirected() && 
+//					otherGraph.getVertices().equals(this.getVertices()) &&
+//					otherGraph.getUndirectedEdges().equals(this.getUndirectedEdges()) && 
+//					otherGraph.getDirectedEdges().equals(this.getDirectedEdges()));
 		} else {
 			MatrixGraph otherMatrixGraph = (MatrixGraph) other;
 			return (Arrays.deepEquals(otherMatrixGraph.getMatrix(), this.getMatrix()) 
