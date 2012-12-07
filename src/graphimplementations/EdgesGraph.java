@@ -322,7 +322,13 @@ public class EdgesGraph extends AbstractGraph {
 	public boolean isEulerian() {
 		if (!isDirected()) {
 			for (Vertex v : getVertices()) {
-				if (getDegreeAt(v) % 2 != 0) {
+				Multiset<Edge> edgesWithoutLoopsAt = HashMultiset.create();
+				for (Edge e : getEdgesAt(v)) {
+					if (!e.isLoop()) {
+						edgesWithoutLoopsAt.add(e);
+					}
+				}
+				if (edgesWithoutLoopsAt.size() % 2 != 0) {
 					return false;
 				}
 			}

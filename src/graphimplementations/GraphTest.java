@@ -965,6 +965,62 @@ public class GraphTest {
 	
 	// isEulerian
 	
+	public Multiset<Edge> undirectedEulerianEdges = HashMultiset.create();
+	@Before
+	public void initializeUndirectedEulerianEdges() {
+		undirectedEulerianEdges.add(e1u);
+		undirectedEulerianEdges.add(e2u);
+		undirectedEulerianEdges.add(e3u);
+		undirectedEulerianEdges.add(undirectedLoop);
+	}
+	
+	public Multiset<Edge> directedEulerianEdges = HashMultiset.create();
+	@Before
+	public void initializeDirectedEulerianEdges() {
+		directedEulerianEdges.add(e1d);
+		directedEulerianEdges.add(e2d);
+		directedEulerianEdges.add(e3d);
+		directedEulerianEdges.add(directedLoop);
+	}
+	
+	public int[][] matrix6 = {{ 1, 1, 1 },
+							  { 1, 0, 1 },
+							  { 1, 1, 0 }};
+
+	public int[][] matrix7 = {{ 1, 1, 0 },
+			  				  { 0, 0, 1 },
+			  				  { 1, 0, 0 }};
+
+	// EdgesGraph
+	@Test
+	public void edgesGraph_isEulerian_undirected() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEulerianEdges, HashMultiset.<Edge>create());
+		
+		assertTrue(graph.isEulerian());
+	}
+
+	@Test
+	public void edgesGraph_isEulerian_directed() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEulerianEdges);
+		
+		assertTrue(graph.isEulerian());
+	}
+	
+	// MatrixGraph
+	@Test
+	public void matrixGraph_isEulerian_undirected() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix6, false);
+		
+		assertTrue(graph.isEulerian());
+	}
+
+	@Test
+	public void matrixGraph_isEulerian_directed() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix7, true);
+		
+		assertTrue(graph.isEulerian());
+	}
+	
 	// isPerfectMatching (edgesgraph, matrixgraph)
 	
 	// getCycle, mergeTours, getEulerianCycle (edgesgraph)
