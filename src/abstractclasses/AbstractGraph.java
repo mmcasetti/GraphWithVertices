@@ -9,10 +9,10 @@ public abstract class AbstractGraph implements Graph {
 		if (other == this) {
 			return true;
 		}
+		
 		if (!(other instanceof AbstractGraph)) {
 			return false;
-		}
-			
+		}	
 		AbstractGraph otherGraph = (AbstractGraph) other;
 		if (this.isDirected() != otherGraph.isDirected()) {
 			return false;
