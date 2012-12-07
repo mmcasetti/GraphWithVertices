@@ -488,6 +488,176 @@ public class GraphTest {
 	}
 	
 	// getEdgesAt/From/To; getDegree/Out/In
+	// EdgesGraph
+	@Test
+	public void edgesGraph_edgesAt() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
+		Multiset<Edge> edgesAt1 = HashMultiset.create();
+		edgesAt1.add(e1u);
+		edgesAt1.add(e1u);
+		edgesAt1.add(e3u);
+		edgesAt1.add(undirectedLoop);
+		
+		assertEquals(edgesAt1, graph.getEdgesAt(v1));
+	}
+	
+	@Test
+	public void edgesGraph_degreeAt() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
+		
+		assertEquals(4, graph.getDegreeAt(v1));
+	}
+	
+	@Test
+	public void edgesGraph_edgesFrom() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges1);
+		Multiset<Edge> edgesFrom1 = HashMultiset.create();
+		edgesFrom1.add(e1d);
+		edgesFrom1.add(e1d);
+		edgesFrom1.add(directedLoop);
+		
+		assertEquals(edgesFrom1, graph.getEdgesFrom(v1));
+	}
+	
+	@Test
+	public void edgesGraph_outdegreeAt() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges1);
+		
+		assertEquals(3, graph.getOutdegreeAt(v1));
+	}
+	
+	@Test
+	public void edgesGraph_edgesTo() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges1);
+		Multiset<Edge> edgesTo1 = HashMultiset.create();
+		edgesTo1.add(e3d);
+		edgesTo1.add(directedLoop);
+		
+		assertEquals(edgesTo1, graph.getEdgesTo(v1));
+	}
+	
+	@Test
+	public void edgesGraph_indegreeAt() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, HashMultiset.<Edge>create(), directedEdges1);
+		
+		assertEquals(2, graph.getIndegreeAt(v1));
+	}
+	
+	// MatrixGraph
+	@Test
+	public void matrixGraph_edgesAt() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
+		Multiset<Edge> edgesAt1 = HashMultiset.create();
+		edgesAt1.add(e1u);
+		edgesAt1.add(e1u);
+		edgesAt1.add(e3u);
+		edgesAt1.add(undirectedLoop);
+		
+		assertEquals(edgesAt1, graph.getEdgesAt(v1));		
+	}
+
+	@Test
+	public void matrixGraph_degreeAt() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
+		
+		assertEquals(4, graph.getDegreeAt(v1));		
+	}
+
+	@Test
+	public void matrixGraph_edgesFrom() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+		Multiset<Edge> edgesFrom1 = HashMultiset.create();
+		edgesFrom1.add(e1d);
+		edgesFrom1.add(e1d);
+		edgesFrom1.add(e3dOpposite);
+		edgesFrom1.add(directedLoop);
+		
+		assertEquals(edgesFrom1, graph.getEdgesFrom(v1));
+	}
+	
+	@Test
+	public void matrixGraph_outdegreeAt() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+		
+		assertEquals(4, graph.getOutdegreeAt(v1));
+	}
+	
+	@Test
+	public void matrixGraph_edgesTo() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+		Multiset<Edge> edgesTo1 = HashMultiset.create();
+		edgesTo1.add(e1dOpposite);
+		edgesTo1.add(e1dOpposite);
+		edgesTo1.add(e3d);
+		edgesTo1.add(directedLoop);
+		
+		assertEquals(edgesTo1, graph.getEdgesTo(v1));
+	}
+	
+	@Test
+	public void matrixGraph_indegreeAt() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, true);
+		
+		assertEquals(4, graph.getIndegreeAt(v1));
+	}
+	
+	// ListGraph
+	@Test
+	public void listGraph_edgesAt() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, false);
+		Multiset<Edge> edgesAt1 = HashMultiset.create();
+		edgesAt1.add(e1u);
+		edgesAt1.add(e1u);
+		edgesAt1.add(e3u);
+		edgesAt1.add(undirectedLoop);
+		
+		assertEquals(edgesAt1, graph.getEdgesAt(v1));		
+	}
+	
+	@Test
+	public void listGraph_degreeAt() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, false);
+		
+		assertEquals(4, graph.getDegreeAt(v1));		
+	}
+	
+	@Test
+	public void listGraph_edgesFrom() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, true);
+		Multiset<Edge> edgesFrom1 = HashMultiset.create();
+		edgesFrom1.add(e1d);
+		edgesFrom1.add(e1d);
+		edgesFrom1.add(e3dOpposite);
+		edgesFrom1.add(directedLoop);
+		
+		assertEquals(edgesFrom1, graph.getEdgesFrom(v1));
+	}
+	
+	@Test
+	public void listGraph_outdegreeAt() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, true);
+		
+		assertEquals(4, graph.getOutdegreeAt(v1));
+	}
+	
+	@Test
+	public void listGraph_edgesTo() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, true);
+		Multiset<Edge> edgesTo1 = HashMultiset.create();
+		edgesTo1.add(e1dOpposite);
+		edgesTo1.add(e1dOpposite);
+		edgesTo1.add(e3d);
+		edgesTo1.add(directedLoop);
+		
+		assertEquals(edgesTo1, graph.getEdgesTo(v1));
+	}
+	
+	@Test
+	public void listGraph_indegreeAt() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, true);
+		
+		assertEquals(4, graph.getIndegreeAt(v1));
+	}
 	
 	// add/removeVertex
 	

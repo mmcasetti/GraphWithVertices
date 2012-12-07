@@ -233,7 +233,7 @@ public class MatrixGraph extends AbstractGraph {
 		int indexOfVertex = getIndexOf(vertex);
 		Multiset<Edge> edgesTo = HashMultiset.create();
 		for (int i = 0; i < getMatrix().length; i++) {
-			Edge edge = Edge.from(vertex).to(getListOfVertices().get(i));
+			Edge edge = Edge.from(getListOfVertices().get(i)).to(vertex);
 			edgesTo.add(edge, getMatrix()[i][indexOfVertex]);
 		}
 		return edgesTo;

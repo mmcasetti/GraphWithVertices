@@ -199,7 +199,7 @@ public class ListGraph extends AbstractGraph {
 		Multiset<Edge> edgesFrom = HashMultiset.create();		
 		int indexOfV = getIndexOf(vertex);
 		for (Vertex otherVertex : getAdjacencyList().get(indexOfV)){
-			Edge edge = Edge.between(vertex).and(otherVertex);
+			Edge edge = Edge.from(vertex).to(otherVertex);
 			edgesFrom.add(edge);
 		}
 		return edgesFrom;
@@ -229,7 +229,7 @@ public class ListGraph extends AbstractGraph {
 		Preconditions.checkArgument(!isDirected(), 
 				"Use getOutdegreeAt and getIndegreeAt");
 		
-		return getAdjacencyList().get(getIndegreeAt(vertex)).size();
+		return getAdjacencyList().get(getIndexOf(vertex)).size();
 	}
 	
 	@Override
@@ -239,7 +239,7 @@ public class ListGraph extends AbstractGraph {
 		Preconditions.checkArgument(isDirected(), 
 				"Use getDegreeAt");
 
-		return getAdjacencyList().get(getIndegreeAt(vertex)).size();
+		return getAdjacencyList().get(getIndexOf(vertex)).size();
 	}
 		
 	@Override
