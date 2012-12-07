@@ -659,7 +659,111 @@ public class GraphTest {
 		assertEquals(4, graph.getIndegreeAt(v1));
 	}
 	
-	// add/removeVertex
+	// addVertices/removeVertex
+
+	public Vertex v4 = new Vertex();
+	public Vertex v5 = new Vertex();
+	public Set<Vertex> newVerticesSet = Sets.newHashSet(v4, v5);
+	public Set<Vertex> largerVerticesSet = Sets.newHashSet(v1, v2, v3, v4, v5);
+	
+	public List<Vertex> largerVerticesList = Lists.newArrayList(v1, v2, v3, v4, v5);
+	
+	public int[][] matrix3 = {{ 1, 2, 1, 0, 0 },
+							  { 2, 0, 1, 0, 0 },
+							  { 1, 1, 0, 0, 0 },
+							  { 0, 0, 0, 0, 0 },
+							  { 0, 0, 0, 0, 0 }};
+	
+	public List<Multiset<Vertex>> list3 = Lists.newArrayList();
+	@Before
+	public void initializeList3() {
+		Multiset<Vertex> multiset1 = HashMultiset.create();
+		multiset1.add(v1);
+		multiset1.add(v2);
+		multiset1.add(v2);
+		multiset1.add(v3);
+		list3.add(multiset1);
+		Multiset<Vertex> multiset2 = HashMultiset.create();
+		multiset2.add(v1);
+		multiset2.add(v1);
+		multiset2.add(v3);
+		list3.add(multiset2);
+		Multiset<Vertex> multiset3 = HashMultiset.create();
+		multiset3.add(v1);
+		multiset3.add(v2);
+		list3.add(multiset3);
+		Multiset<Vertex> multiset4 = HashMultiset.create();
+		list3.add(multiset4);
+		Multiset<Vertex> multiset5 = HashMultiset.create();
+		list3.add(multiset5);
+	}
+
+	// EdgesGraph
+	
+	@Test
+	public void edgesGraph_addVertices() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
+		EdgesGraph largerGraph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, undirectedEdges, HashMultiset.<Edge>create());
+		
+		graph.addVertices(newVerticesSet);
+		
+		assertEquals(largerGraph, graph);
+	}
+	
+	@Test
+	public void edgesGraph_removeVertex() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(verticesSet, undirectedEdges, HashMultiset.<Edge>create());
+		EdgesGraph largerGraph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, undirectedEdges, HashMultiset.<Edge>create());
+
+		largerGraph.removeVertex(v4);
+		largerGraph.removeVertex(v5);
+		
+		assertEquals(graph, largerGraph);
+	}
+	
+	// MatrixGraph	
+	@Test
+	public void matrixGraph_addVertices() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
+		MatrixGraph largerGraph = matrixGraphFactory.createMatrixGraph(largerVerticesList, matrix3, false);
+		
+		graph.addVertices(newVerticesSet);
+		
+		assertEquals(largerGraph, graph);		
+	}
+	
+	@Test
+	public void matrixGraph_removeVertex() {
+		MatrixGraph graph = matrixGraphFactory.createMatrixGraph(verticesList, matrix1, false);
+		MatrixGraph largerGraph = matrixGraphFactory.createMatrixGraph(largerVerticesList, matrix3, false);
+		
+		largerGraph.removeVertex(v4);
+		largerGraph.removeVertex(v5);
+		
+		assertEquals(graph, largerGraph);
+	}
+	
+	// ListGraph
+	@Test
+	public void listGraph_addVertices() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, false);
+		ListGraph largerGraph = listGraphFactory.createListGraph(largerVerticesList, list3, false);
+		
+		graph.addVertices(newVerticesSet);
+		
+		assertEquals(largerGraph, graph);		
+	}
+	
+	@Test
+	public void listGraph_removeVertex() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list1, false);
+		ListGraph largerGraph = listGraphFactory.createListGraph(largerVerticesList, list3, false);
+		
+		largerGraph.removeVertex(v4);
+		largerGraph.removeVertex(v5);
+		
+		assertEquals(graph, largerGraph);
+	}
 	
 	// add/removeEdge
 	

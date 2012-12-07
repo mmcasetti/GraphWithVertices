@@ -279,8 +279,8 @@ public class ListGraph extends AbstractGraph {
 			getAdjacencyList().get(i).remove(vertex, 
 					getAdjacencyList().get(i).count(vertex));
 		}
-		getListOfVertices().remove(getIndexOf(vertex));
 		getAdjacencyList().remove(getIndexOf(vertex));
+		getListOfVertices().remove(vertex);
 	}
 
 	@Override

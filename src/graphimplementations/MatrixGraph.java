@@ -318,7 +318,7 @@ public class MatrixGraph extends AbstractGraph {
 			}
 		}
 		adjacencyMatrix = newMatrix;
-		getVertices().remove(vertex);
+		getListOfVertices().remove(vertex);
 	}
 
 	@Override
