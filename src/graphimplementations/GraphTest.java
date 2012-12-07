@@ -986,10 +986,41 @@ public class GraphTest {
 	public int[][] matrix6 = {{ 1, 1, 1 },
 							  { 1, 0, 1 },
 							  { 1, 1, 0 }};
-
 	public int[][] matrix7 = {{ 1, 1, 0 },
 			  				  { 0, 0, 1 },
 			  				  { 1, 0, 0 }};
+
+	public List<Multiset<Vertex>> list6 = Lists.newArrayList();
+	@Before
+	public void initializeList6() {
+		Multiset<Vertex> multiset1 = HashMultiset.create();
+		multiset1.add(v1);
+		multiset1.add(v2);
+		multiset1.add(v3);
+		list6.add(multiset1);
+		Multiset<Vertex> multiset2 = HashMultiset.create();
+		multiset2.add(v1);
+		multiset2.add(v3);
+		list6.add(multiset2);
+		Multiset<Vertex> multiset3 = HashMultiset.create();
+		multiset3.add(v1);
+		multiset3.add(v2);
+		list6.add(multiset3);
+	}	
+	public List<Multiset<Vertex>> list7 = Lists.newArrayList();
+	@Before
+	public void initializeList7() {
+		Multiset<Vertex> multiset1 = HashMultiset.create();
+		multiset1.add(v1);
+		multiset1.add(v2);
+		list7.add(multiset1);
+		Multiset<Vertex> multiset2 = HashMultiset.create();
+		multiset2.add(v3);
+		list7.add(multiset2);
+		Multiset<Vertex> multiset3 = HashMultiset.create();
+		multiset3.add(v1);
+		list7.add(multiset3);
+	}
 
 	// EdgesGraph
 	@Test
@@ -1021,7 +1052,24 @@ public class GraphTest {
 		assertTrue(graph.isEulerian());
 	}
 	
+	// ListGraph
+	@Test
+	public void listGraph_isEulerian_undirected() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list6, false);
+		
+		assertTrue(graph.isEulerian());
+	}
+
+	@Test
+	public void listGraph_isEulerian_directed() {
+		ListGraph graph = listGraphFactory.createListGraph(verticesList, list7, true);
+		
+		assertTrue(graph.isEulerian());
+	}
+	
 	// isPerfectMatching (edgesgraph, matrixgraph)
+	
+	
 	
 	// getCycle, mergeTours, getEulerianCycle (edgesgraph)
 }

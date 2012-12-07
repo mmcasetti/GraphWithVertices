@@ -422,7 +422,13 @@ public class ListGraph extends AbstractGraph {
 	public boolean isEulerian() {
 		if (!isDirected()) {
 			for (Vertex v : getVertices()) {
-				if (getDegreeAt(v) % 2 != 0) {
+				Multiset<Vertex> otherVerticesConnectedTo = HashMultiset.create();
+				for (Vertex w : getAdjacencyList().get(getIndexOf(v))) {
+					if (!w.equals(v)) {
+						otherVerticesConnectedTo.add(w);
+					}
+				}
+				if (otherVerticesConnectedTo.size() % 2 != 0) {
 					return false;
 				}
 			}			
