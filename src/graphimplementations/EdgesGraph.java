@@ -378,16 +378,58 @@ public class EdgesGraph extends AbstractGraph {
 		}
 		return true;
 	}
+	
+	public Optional<List<Vertex>> mergeTours(Optional<List<Vertex>> tour1,
+			Optional<List<Vertex>> tour2, Vertex junction) {
+		Preconditions.checkArgument(vertices.contains(junction),
+				"Junction not in graph");
+		Preconditions.checkArgument(tour1.get().contains(junction),
+				"Junction not in tour1");
+		Preconditions.checkArgument(tour2.get().contains(junction),
+				"Junction not in tour2");
+		Preconditions.checkArgument(vertices.containsAll(tour1.get())
+				&& vertices.containsAll(tour2.get()),
+				"Tours not a subset of vertices");
 
+		List<Vertex> tour3 = Lists.newArrayList();
+
+		if (!tour1.isPresent() && !tour2.isPresent()) {
+			return Optional.absent();
+		} else if (!tour1.isPresent()) {
+			return tour2;
+		} else if (!tour2.isPresent()) {
+			return tour1;
+		}
+
+		int i = 0;
+		while (i <= tour1.get().indexOf(junction)) {
+			tour3.add(tour1.get().get(i));
+			i++;
+		}
+		int j = 1;
+		while (j < tour2.get().size()) {
+			tour3.add(tour2.get().get((j + tour2.get().indexOf(junction)) % tour2.get().size()));
+			j++;
+		}
+		while (i < tour1.get().size()) {
+			tour3.add(tour1.get().get(i));
+			i++;
+		}
+
+		return Optional.of(tour3);
+	}
+	
+	// TODO check from here (test etc)
+	
 	public List<Vertex> getEulerianCycle(EdgesGraph graph, Vertex startNode) {
 		Preconditions.checkArgument(vertices.contains(startNode),
 				"Start node not in graph");
 		Preconditions.checkArgument(graph.isEulerian(), "Graph not Eulerian.");
 
 		final EdgesGraph copyOfGraph = new EdgesGraph(graph);
-		List<Vertex> eulerianCycle = findAndRemoveCycle(copyOfGraph, startNode);
 
 		if (!graph.isDirected()) {
+			List<Vertex> eulerianCycle = copyOfGraph.findAndRemoveCycle(copyOfGraph, startNode);
 			while (!copyOfGraph.getUndirectedEdges().isEmpty()) {
 				Vertex junction = Iterables.find(eulerianCycle,
 						new Predicate<Vertex>() {
@@ -396,11 +438,13 @@ public class EdgesGraph extends AbstractGraph {
 								return copyOfGraph.getDegreeAt(vertex) > 0;
 							}
 						});
-				List<Vertex> cycle = findAndRemoveCycle(copyOfGraph, junction);
+				List<Vertex> cycle = copyOfGraph.findAndRemoveCycle(copyOfGraph, junction);
 				eulerianCycle = graph.mergeTours(Optional.of(eulerianCycle),
-						Optional.of(cycle), junction);
+						Optional.of(cycle), junction).get();
 			}			
+			return eulerianCycle;
 		} else {
+			List<Vertex> eulerianCycle = copyOfGraph.findAndRemoveCycle(copyOfGraph, startNode);
 			while (!copyOfGraph.getDirectedEdges().isEmpty()) {
 				Vertex junction = Iterables.find(eulerianCycle,
 						new Predicate<Vertex>() {
@@ -409,18 +453,18 @@ public class EdgesGraph extends AbstractGraph {
 								return copyOfGraph.getOutdegreeAt(vertex) > 0;
 							}
 						});
-				List<Vertex> cycle = findAndRemoveCycle(copyOfGraph, junction);
+				List<Vertex> cycle = copyOfGraph.findAndRemoveCycle(copyOfGraph, junction);
 				eulerianCycle = graph.mergeTours(Optional.of(eulerianCycle),
-						Optional.of(cycle), junction);
+						Optional.of(cycle), junction).get();
 			}
+			return eulerianCycle;
 		}
-		return eulerianCycle;
 	}
 	
 	private List<Vertex> findAndRemoveCycle(EdgesGraph edgesGraph,
 			Vertex startNode) {
-		List<Vertex> cycle = Lists.newArrayList(edgesGraph.getCycle(edgesGraph,
-				startNode).get());
+		EdgesGraph copyOfGraph = new EdgesGraph(edgesGraph);
+		List<Vertex> cycle = Lists.newArrayList(copyOfGraph.getCycle(copyOfGraph, startNode).get());
 		if (!edgesGraph.isDirected()) {
 			for (Integer i = 0; i < cycle.size() - 1; i++) {
 				edgesGraph.removeUndirectedEdge(cycle.get(i), cycle.get(i + 1));
@@ -435,6 +479,7 @@ public class EdgesGraph extends AbstractGraph {
 		return cycle;			
 	}
 
+	// Too simple! it might need to backtrack (DFS on edges). Or it needs to be on Eulerian graph.
 	public Optional<List<Vertex>> getCycle(EdgesGraph edgesGraph,
 			Vertex startNode) {
 		Preconditions.checkArgument(vertices.contains(startNode),
@@ -444,7 +489,7 @@ public class EdgesGraph extends AbstractGraph {
 		Vertex currentNode = startNode;
 		EdgesGraph copyOfGraph = new EdgesGraph(edgesGraph);
 
-		if (!edgesGraph.isDirected()) {
+		if (!copyOfGraph.isDirected()) {
 			do {
 				cycle.add(currentNode);
 				Multiset<Edge> edgesAt = copyOfGraph.getEdgesAt(currentNode);
@@ -480,43 +525,5 @@ public class EdgesGraph extends AbstractGraph {
 		
 		Optional<List<Vertex>> c = Optional.of(cycle);
 		return c;
-	}
-
-	public List<Vertex> mergeTours(Optional<List<Vertex>> tour1,
-			Optional<List<Vertex>> tour2, Vertex junction) {
-		Preconditions.checkArgument(vertices.contains(junction),
-				"Junction not in graph");
-		Preconditions.checkArgument(tour1.get().contains(junction),
-				"Junction not in tour1");
-		Preconditions.checkArgument(tour2.get().contains(junction),
-				"Junction not in tour2");
-		Preconditions.checkArgument(vertices.containsAll(tour1.get())
-				&& vertices.containsAll(tour2.get()),
-				"Tours not a subset of vertices");
-
-		List<Vertex> tour3 = Lists.newArrayList();
-
-		if (!tour1.isPresent() && !tour2.isPresent()) {
-			return tour3;
-		} else if (!tour1.isPresent()) {
-			return tour2.get();
-		} else if (!tour2.isPresent()) {
-			return tour1.get();
-		}
-
-		boolean tour2HasBeenVisited = false;
-		for (Vertex tour1Vertex : tour1.get()) {
-			tour3.add(tour1Vertex);
-			if (!tour2HasBeenVisited && tour1Vertex.equals(junction)) {
-				int indexOfJunctionInTour2 = tour2.get().indexOf(junction);
-				for (int i = indexOfJunctionInTour2 + 1; i < tour2.get().size(); i++) {
-					Vertex tour2Vertex = tour2.get()
-							.get(i % tour2.get().size());
-					tour3.add(tour2Vertex);
-				}
-				tour2HasBeenVisited = true;
-			}
-		}
-		return tour3;
 	}
 }

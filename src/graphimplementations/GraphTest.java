@@ -8,6 +8,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.HashMultiset;
@@ -1156,4 +1157,52 @@ public class GraphTest {
 	}
 	
 	// getCycle, mergeTours, getEulerianCycle (edgesgraph)
+	public Edge e6u = Edge.between(v4).and(v5);
+	public Edge e7u = Edge.between(v5).and(v3);
+	public Multiset<Edge> undirectedEdgesForCycle = HashMultiset.create();
+	@Before
+	public void initializeUndirectedEdgesForCycle() {
+		undirectedEdgesForCycle.add(e1u);
+		undirectedEdgesForCycle.add(e2u);
+		undirectedEdgesForCycle.add(e3u);
+		undirectedEdgesForCycle.add(e3u);
+		undirectedEdgesForCycle.add(e3u);
+		undirectedEdgesForCycle.add(e5u);
+		undirectedEdgesForCycle.add(e6u);
+		undirectedEdgesForCycle.add(e7u);
+		undirectedEdgesForCycle.add(undirectedLoop);
+	}
+	
+	public List<Vertex> tour1List = Lists.newArrayList(v1, v2, v3);
+	public Optional<List<Vertex>> tour1 = Optional.of(tour1List);
+	public List<Vertex> tour2List = Lists.newArrayList(v4, v5, v3);
+	public Optional<List<Vertex>> tour2 = Optional.of(tour2List);
+	public List<Vertex> tour3List = Lists.newArrayList(v1, v2, v3, v4, v5);
+	public Optional<List<Vertex>> tour3 = Optional.of(tour3List);
+
+	@Test
+	public void edgesGraph_mergeTours_directed() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, undirectedEdgesForCycle, HashMultiset.<Edge>create());
+
+		assertEquals(tour3, graph.mergeTours(tour1, tour2, v3));
+	}
+
+	@Test
+	public void edgesGraph_getCycle_undirected() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, undirectedEdgesForCycle, HashMultiset.<Edge>create());
+		Optional<List<Vertex>> cycle = graph.getCycle(graph, v4);
+		
+		assertTrue((cycle.get().size() == 3) ||
+				(cycle.get().size() == 6) ||
+				(cycle.get().size() == 8) ||
+				(cycle.get().size() == 9));
+	}
+	
+	@Test
+	public void edgesGraph_getEulerianCycle_undirected() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, undirectedEdgesForCycle, HashMultiset.<Edge>create());
+		
+		assertEquals(9, graph.getEulerianCycle(graph, v1).size());
+	}
+	
 }
