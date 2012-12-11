@@ -1264,12 +1264,9 @@ public class GraphTest {
 	@Test
 	public void edgesGraph_getEulerianCycle_undirected_small() {
 		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(smallVerticesSet, smallUndirected, HashMultiset.<Edge>create());
-		EdgesGraph graph2 = edgesGraphFactory.createEdgesGraph(smallVerticesSet, smallUndirected, HashMultiset.<Edge>create());
-		graph.getEulerianCycle(graph, v1);
-		
-		assertTrue(graph.equals(graph2));
-//		assertTrue(graph.getEulerianCycle(graph, v1).equals(smallCycle) ||
-//				graph.getEulerianCycle(graph, v1).equals(smallCycleOpposite));
+
+		assertTrue(graph.getEulerianCycle(graph, v1).equals(smallCycle) ||
+				graph.getEulerianCycle(graph, v1).equals(smallCycleOpposite));
 	}
 	
 	// This test works for getCycleInEulerian()	
@@ -1285,7 +1282,7 @@ public class GraphTest {
 	public void edgesGraph_getEulerianCycle_undirected() {
 		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, undirectedEdgesForCycle, HashMultiset.<Edge>create());
 		
-		assertEquals(9, graph.getEulerianCycle(graph, v4).size());
+		assertEquals(9, graph.getEulerianCycle(graph, v1).size());
 	}
 	
 	// Test returns an error
@@ -1293,6 +1290,6 @@ public class GraphTest {
 	public void edgesGraph_getEulerianCycle_directed() {
 		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, HashMultiset.<Edge>create(), directedEdgesForCycle);
 		
-		assertEquals(9, graph.getEulerianCycle(graph, v4).size());
+		assertEquals(9, graph.getEulerianCycle(graph, v1).size());
 	}	
 }

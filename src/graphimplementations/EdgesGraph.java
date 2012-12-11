@@ -67,7 +67,15 @@ public class EdgesGraph extends AbstractGraph {
 	 * @param originalGraph is copied
 	 */
 	public EdgesGraph(EdgesGraph originalGraph) {
-		this(originalGraph.getVertices(), originalGraph.getUndirectedEdges(), originalGraph.getDirectedEdges());
+		Set<Vertex> newVertices = Sets.newHashSet(originalGraph.getVertices());
+		Multiset<Edge> newUndirectedEdges = HashMultiset.create();
+		newUndirectedEdges.addAll(originalGraph.getUndirectedEdges());
+		Multiset<Edge> newDirectedEdges = HashMultiset.create();
+		newDirectedEdges.addAll(originalGraph.getDirectedEdges());
+		
+		this.vertices = newVertices;
+		this.undirectedEdges = newUndirectedEdges;
+		this.directedEdges = newDirectedEdges;
 	}
 
 	/**
@@ -470,20 +478,20 @@ public class EdgesGraph extends AbstractGraph {
 		return Optional.absent();
 	}
 	
-	// TODO (returns error in tests!)
+	// TODO (failure in tests!)
 	public List<Vertex> getEulerianCycle(EdgesGraph graph, Vertex startNode) {
 		Preconditions.checkArgument(vertices.contains(startNode),
 				"Start node not in graph");
 		Preconditions.checkArgument(graph.isEulerian(), "Graph not Eulerian.");
 
-		final EdgesGraph copyOfGraph = new EdgesGraph(graph);
-		List<Vertex> cycle1 = copyOfGraph.getCycleInEulerian(copyOfGraph, startNode);
-
-		if (cycle1.size() == graph.getUndirectedEdges().size()) {
-			return cycle1;
-		}
-		
 		if (!graph.isDirected()) {
+			final EdgesGraph copyOfGraph = new EdgesGraph(graph);
+			List<Vertex> cycle1 = copyOfGraph.getCycleInEulerian(copyOfGraph, startNode);
+
+			if (cycle1.size() == graph.getUndirectedEdges().size()) {
+				return cycle1;
+			}
+			
 			for (Integer i = 0; i < cycle1.size() - 1; i++) {
 				copyOfGraph.removeUndirectedEdge(cycle1.get(i), cycle1.get(i + 1));
 			}
@@ -504,7 +512,15 @@ public class EdgesGraph extends AbstractGraph {
 				cycle1 = graph.mergeTours(Optional.of(cycle1),
 						Optional.of(cycle2), junction).get();
 			}			
+			return cycle1;
 		} else {
+			final EdgesGraph copyOfGraph = new EdgesGraph(graph);
+			List<Vertex> cycle1 = copyOfGraph.getCycleInEulerian(copyOfGraph, startNode);
+
+			if (cycle1.size() == graph.getDirectedEdges().size()) {
+				return cycle1;
+			}
+			
 			for (Integer i = 0; i < cycle1.size() - 1; i++) {
 				copyOfGraph.removeDirectedEdge(cycle1.get(i), cycle1.get(i + 1));
 			}
@@ -514,7 +530,7 @@ public class EdgesGraph extends AbstractGraph {
 						new Predicate<Vertex>() {
 							@Override
 							public boolean apply(Vertex vertex) {
-								return copyOfGraph.getDegreeAt(vertex) > 0;
+								return copyOfGraph.getOutdegreeAt(vertex) > 0;
 							}
 						});
 				List<Vertex> cycle2 = copyOfGraph.getCycleInEulerian(copyOfGraph, junction);
@@ -525,7 +541,7 @@ public class EdgesGraph extends AbstractGraph {
 				cycle1 = graph.mergeTours(Optional.of(cycle1),
 						Optional.of(cycle2), junction).get();
 			}			
+			return cycle1;
 		}
-		return cycle1;
 	}
 }
