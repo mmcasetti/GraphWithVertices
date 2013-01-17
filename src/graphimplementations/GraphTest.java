@@ -1156,7 +1156,7 @@ public class GraphTest {
 		assertTrue(graph.isPerfectMatching(matrixDirectedPerfectMatching));
 	}
 	
-	// getCycle, mergeTours, getEulerianCycle (edgesgraph)
+	// getCycle, mergeTours, getEulerianCycle (EdgesGraph)
 	public Edge e6u = Edge.between(v4).and(v5);
 	public Edge e7u = Edge.between(v5).and(v3);
 	public Multiset<Edge> undirectedEdgesForCycle = HashMultiset.create();
@@ -1187,11 +1187,10 @@ public class GraphTest {
 		directedEdgesForCycle.add(e7d);
 		directedEdgesForCycle.add(directedLoop);
 	}
-
 	
 	public List<Vertex> tour1List = Lists.newArrayList(v1, v2, v3);
 	public Optional<List<Vertex>> tour1 = Optional.of(tour1List);
-	public List<Vertex> tour2List = Lists.newArrayList(v4, v5, v3);
+	public List<Vertex> tour2List = Lists.newArrayList(v5, v3, v4);
 	public Optional<List<Vertex>> tour2 = Optional.of(tour2List);
 	public List<Vertex> tour3List = Lists.newArrayList(v1, v2, v3, v4, v5);
 	public Optional<List<Vertex>> tour3 = Optional.of(tour3List);
@@ -1203,6 +1202,43 @@ public class GraphTest {
 		assertEquals(tour3, graph.mergeTours(tour1, tour2, v3));
 	}
 
+	@Test
+	public void edgesGraph_getCycleInEulerian_undirected_isolated() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(Sets.newHashSet(v1), HashMultiset.<Edge>create(), HashMultiset.<Edge>create());
+		
+		List<Vertex> cycle = graph.getCycleInEulerian(graph, v1);
+		assertEquals(cycle, Lists.newArrayList(v1));
+	}
+	
+	public Multiset<Edge> justLoop = HashMultiset.create();
+	@Before
+	public void initializeJustLoop() {
+		justLoop.add(undirectedLoop);
+	}
+	
+	@Test
+	public void edgesGraph_getCycleInEulerian_undirected_isolated_loop() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(Sets.newHashSet(v1), justLoop, HashMultiset.<Edge>create());
+		
+		List<Vertex> cycle = graph.getCycleInEulerian(graph, v1);
+		assertEquals(cycle, Lists.newArrayList(v1, v1));
+	}
+	
+	public Multiset<Edge> twoEdges = HashMultiset.create();
+	@Before
+	public void initializeTwoEdges() {
+		twoEdges.add(e3u);
+		twoEdges.add(e3u);
+	}
+	
+	@Test
+	public void edgesGraph_getCycleInEulerian_undirected_backForth() {
+		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(Sets.newHashSet(v1, v3), twoEdges, HashMultiset.<Edge>create());
+		
+		List<Vertex> cycle = graph.getCycleInEulerian(graph, v1);
+		assertEquals(cycle, Lists.newArrayList(v1, v3));
+	}
+	
 	@Test
 	public void edgesGraph_getCycleInEulerian_undirected() {
 		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, undirectedEdgesForCycle, HashMultiset.<Edge>create());
@@ -1228,19 +1264,6 @@ public class GraphTest {
 				(cycle.size() == 9));
 	}
 
-	// TODO
-	@Test
-	public void edgesGraph_getCycle_undirected() {
-		
-	}
-	
-	// TODO
-	@Test
-	public void edgesGraph_getCycle_directed() {
-		
-	}
-	
-	// From here, Error!
 	public Set<Vertex> smallVerticesSet = Sets.newHashSet(v1, v2, v3);
 	public Multiset<Edge> smallUndirected = HashMultiset.create();
 	@Before
@@ -1260,7 +1283,6 @@ public class GraphTest {
 	List<Vertex> smallCycle = Lists.newArrayList(v1, v2, v3);	
 	List<Vertex> smallCycleOpposite = Lists.newArrayList(v1, v3, v2);
 	
-	// This test works for getCycleInEulerian()
 	@Test
 	public void edgesGraph_getEulerianCycle_undirected_small() {
 		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(smallVerticesSet, smallUndirected, HashMultiset.<Edge>create());
@@ -1269,7 +1291,6 @@ public class GraphTest {
 				graph.getEulerianCycle(graph, v1).equals(smallCycleOpposite));
 	}
 	
-	// This test works for getCycleInEulerian()	
 	@Test
 	public void edgesGraph_getEulerianCycle_directed_small() {
 		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(smallVerticesSet, HashMultiset.<Edge>create(), smallDirected);
@@ -1291,5 +1312,17 @@ public class GraphTest {
 		EdgesGraph graph = edgesGraphFactory.createEdgesGraph(largerVerticesSet, HashMultiset.<Edge>create(), directedEdgesForCycle);
 		
 		assertEquals(9, graph.getEulerianCycle(graph, v1).size());
-	}	
+	}
+	
+	// TODO (method to do, too!)
+	@Test
+	public void edgesGraph_getCycle_undirected() {
+		
+	}
+	
+	// TODO (method to do, too!)
+	@Test
+	public void edgesGraph_getCycle_directed() {
+		
+	}
 }

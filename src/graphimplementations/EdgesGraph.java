@@ -396,7 +396,7 @@ public class EdgesGraph extends AbstractGraph {
 				"Junction not in tour1");
 		Preconditions.checkArgument(tour2.get().contains(junction),
 				"Junction not in tour2");
-		Preconditions.checkArgument(vertices.containsAll(tour1.get())
+		Preconditions.checkArgument(getVertices().containsAll(tour1.get())
 				&& vertices.containsAll(tour2.get()),
 				"Tours not a subset of vertices");
 
@@ -441,7 +441,17 @@ public class EdgesGraph extends AbstractGraph {
 		if (!graph.isDirected()) {
 			do {
 				cycle.add(currentNode);
+				
+				Edge loop = Edge.between(currentNode).and(currentNode);
+				while (copyOfGraph.getUndirectedEdges().contains(loop)) {
+					cycle.add(currentNode);
+					copyOfGraph.removeUndirectedEdge(loop);
+				}
 				Multiset<Edge> edgesAt = copyOfGraph.getEdgesAt(currentNode);
+				
+				if (edgesAt.isEmpty()) {
+					return cycle;
+				}
 				Edge edgeFromCurrentNode = Iterables.getLast(edgesAt);
 				Vertex nextNode = (edgeFromCurrentNode.getStart()
 						.equals(currentNode)) ? edgeFromCurrentNode.getEnd()
@@ -453,7 +463,17 @@ public class EdgesGraph extends AbstractGraph {
 		} else {
 			do {
 				cycle.add(currentNode);
+				
+				Edge loop = Edge.from(currentNode).to(currentNode);
+				while (copyOfGraph.getDirectedEdges().contains(loop)) {
+					cycle.add(currentNode);
+					copyOfGraph.removeDirectedEdge(loop);
+				}
+
 				Multiset<Edge> edgesFrom = copyOfGraph.getEdgesFrom(currentNode);
+				if (edgesFrom.isEmpty()) {
+					return cycle;
+				}
 				Edge edgeFromCurrentNode = Iterables.getLast(edgesFrom);
 				Vertex nextNode = edgeFromCurrentNode.getEnd();
 
@@ -467,6 +487,75 @@ public class EdgesGraph extends AbstractGraph {
 	
 	// TODO check from here (test etc)
 
+	// TODO (error/failure in tests!)
+	// Hierholzer's algorithm	
+	public List<Vertex> getEulerianCycle(EdgesGraph graph, Vertex startNode) {
+		Preconditions.checkArgument(vertices.contains(startNode),
+				"Start node not in graph");
+		Preconditions.checkArgument(graph.isEulerian(), "Graph not Eulerian.");
+		Preconditions.checkArgument(graph.isConnected(), "Graph not connected.");
+		
+		if (!graph.isDirected()) {			
+			final EdgesGraph copyOfGraph = new EdgesGraph(graph);
+
+			List<Vertex> cycle1 = copyOfGraph.getCycleInEulerian(copyOfGraph, startNode);			
+			
+			for (int i = 0; i < cycle1.size() - 1; i++) {
+				copyOfGraph.removeUndirectedEdge(cycle1.get(i), cycle1.get(i + 1));
+			}
+			copyOfGraph.removeUndirectedEdge(cycle1.get(cycle1.size() - 1), cycle1.get(0));
+
+			while (!copyOfGraph.getUndirectedEdges().isEmpty()) {
+				Vertex junction = Iterables.find(cycle1,
+						new Predicate<Vertex>() {
+							@Override
+							public boolean apply(Vertex vertex) {
+								return copyOfGraph.getDegreeAt(vertex) > 0;
+							}
+						});
+								
+				List<Vertex> cycle2 = copyOfGraph.getCycleInEulerian(copyOfGraph, junction);				
+				for (int i = 0; i < cycle2.size() - 1; i++) {
+					copyOfGraph.removeUndirectedEdge(cycle2.get(i), cycle2.get(i + 1));
+				}
+				copyOfGraph.removeUndirectedEdge(cycle2.get(cycle2.size() - 1), cycle2.get(0));
+				
+				cycle1 = graph.mergeTours(Optional.of(cycle1),
+						Optional.of(cycle2), junction).get();
+			}
+			
+			return cycle1;
+		} else {
+			final EdgesGraph copyOfGraph = new EdgesGraph(graph);
+			List<Vertex> cycle1 = copyOfGraph.getCycleInEulerian(copyOfGraph, startNode);
+			
+			for (int i = 0; i < cycle1.size() - 1; i++) {
+				copyOfGraph.removeDirectedEdge(cycle1.get(i), cycle1.get(i + 1));
+			}
+			copyOfGraph.removeDirectedEdge(cycle1.get(cycle1.size() - 1), cycle1.get(0));
+			
+			while (!copyOfGraph.getDirectedEdges().isEmpty()) {
+				Vertex junction = Iterables.find(cycle1,
+						new Predicate<Vertex>() {
+							@Override
+							public boolean apply(Vertex vertex) {
+								return copyOfGraph.getOutdegreeAt(vertex) > 0;
+							}
+						});
+				
+				List<Vertex> cycle2 = copyOfGraph.getCycleInEulerian(copyOfGraph, junction);				
+				for (int i = 0; i < cycle2.size() - 1; i++) {
+					copyOfGraph.removeDirectedEdge(cycle2.get(i), cycle2.get(i + 1));
+				}
+				copyOfGraph.removeDirectedEdge(cycle2.get(cycle2.size() - 1), cycle2.get(0));
+				
+				cycle1 = graph.mergeTours(Optional.of(cycle1),
+						Optional.of(cycle2), junction).get();
+			}			
+			return cycle1;
+		}
+	}
+
 	// TODO (with DFS on edges)
 	public Optional<List<Vertex>> getCycle(EdgesGraph graph, Vertex startNode) {
 		Preconditions.checkArgument(graph.getVertices().contains(startNode), "startNode not in graph");
@@ -478,70 +567,9 @@ public class EdgesGraph extends AbstractGraph {
 		return Optional.absent();
 	}
 	
-	// TODO (failure in tests!)
-	public List<Vertex> getEulerianCycle(EdgesGraph graph, Vertex startNode) {
-		Preconditions.checkArgument(vertices.contains(startNode),
-				"Start node not in graph");
-		Preconditions.checkArgument(graph.isEulerian(), "Graph not Eulerian.");
-
-		if (!graph.isDirected()) {
-			final EdgesGraph copyOfGraph = new EdgesGraph(graph);
-			List<Vertex> cycle1 = copyOfGraph.getCycleInEulerian(copyOfGraph, startNode);
-
-			if (cycle1.size() == graph.getUndirectedEdges().size()) {
-				return cycle1;
-			}
-			
-			for (Integer i = 0; i < cycle1.size() - 1; i++) {
-				copyOfGraph.removeUndirectedEdge(cycle1.get(i), cycle1.get(i + 1));
-			}
-			copyOfGraph.removeUndirectedEdge(cycle1.get(cycle1.size() - 1), cycle1.get(0));
-			while (!copyOfGraph.getUndirectedEdges().isEmpty()) {
-				Vertex junction = Iterables.find(cycle1,
-						new Predicate<Vertex>() {
-							@Override
-							public boolean apply(Vertex vertex) {
-								return copyOfGraph.getDegreeAt(vertex) > 0;
-							}
-						});
-				List<Vertex> cycle2 = copyOfGraph.getCycleInEulerian(copyOfGraph, junction);
-				for (Integer i = 0; i < cycle2.size() - 1; i++) {
-					copyOfGraph.removeUndirectedEdge(cycle2.get(i), cycle2.get(i + 1));
-				}
-				copyOfGraph.removeUndirectedEdge(cycle2.get(cycle2.size() - 1), cycle2.get(0));
-				cycle1 = graph.mergeTours(Optional.of(cycle1),
-						Optional.of(cycle2), junction).get();
-			}			
-			return cycle1;
-		} else {
-			final EdgesGraph copyOfGraph = new EdgesGraph(graph);
-			List<Vertex> cycle1 = copyOfGraph.getCycleInEulerian(copyOfGraph, startNode);
-
-			if (cycle1.size() == graph.getDirectedEdges().size()) {
-				return cycle1;
-			}
-			
-			for (Integer i = 0; i < cycle1.size() - 1; i++) {
-				copyOfGraph.removeDirectedEdge(cycle1.get(i), cycle1.get(i + 1));
-			}
-			copyOfGraph.removeDirectedEdge(cycle1.get(cycle1.size() - 1), cycle1.get(0));
-			while (!copyOfGraph.getDirectedEdges().isEmpty()) {
-				Vertex junction = Iterables.find(cycle1,
-						new Predicate<Vertex>() {
-							@Override
-							public boolean apply(Vertex vertex) {
-								return copyOfGraph.getOutdegreeAt(vertex) > 0;
-							}
-						});
-				List<Vertex> cycle2 = copyOfGraph.getCycleInEulerian(copyOfGraph, junction);
-				for (Integer i = 0; i < cycle2.size() - 1; i++) {
-					copyOfGraph.removeDirectedEdge(cycle2.get(i), cycle2.get(i + 1));
-				}
-				copyOfGraph.removeDirectedEdge(cycle2.get(cycle2.size() - 1), cycle2.get(0));
-				cycle1 = graph.mergeTours(Optional.of(cycle1),
-						Optional.of(cycle2), junction).get();
-			}			
-			return cycle1;
-		}
+	// TODO
+	public boolean isConnected() {
+		return true;
 	}
+	
 }
